@@ -1,0 +1,526 @@
+{% extends 'base.html' %}
+
+{% block title %}考勤记录 - 晚自习签到系统{% endblock %}
+
+{% block extra_css %}
+<!-- 直接使用CDN引入Bootstrap和Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
+<style>
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .student-table th, .student-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+    .student-table th {
+        background-color: #f8f9fa;
+        font-weight: 500;
+        text-align: left;
+    }
+    .student-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 1.5rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+    }
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    .badge-warning {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    .stats-box {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: #f8f9fa;
+        margin-bottom: 1rem;
+    }
+    .stats-box .number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .stats-box .label {
+        color: #6c757d;
+    }
+    .progress {
+        height: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">晚自习考勤记录</h4>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary me-2" id="exportBtn">
+                            <i class="bi bi-file-earmark-excel"></i> 导出考勤记录
+                        </button>
+                        <button type="button" class="btn btn-outline-info me-2" id="exportAbsencesBtn">
+                            <i class="bi bi-file-earmark-excel"></i> 导出请假记录
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 d-flex flex-wrap align-items-center">
+                        <div class="me-3 mb-2">
+                            <div class="input-group">
+                                <span class="input-group-text">日期</span>
+                                <input type="text" id="datePicker" class="form-control" value="{{ date.strftime('%Y-%m-%d') }}">
+                                <button class="btn btn-outline-primary" id="goToDate">确定</button>
+                            </div>
+                        </div>
+                        
+                        <div class="me-3 mb-2">
+                            <div class="input-group">
+                                <span class="input-group-text">班级</span>
+                                <select id="classFilter" class="form-control">
+                                    <option value="">所有班级</option>
+                                    {% for class_name in classes %}
+                                        <option value="{{ class_name }}" {% if current_class == class_name %}selected{% endif %}>{{ class_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-primary" id="applyFilter">筛选</button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <button class="btn btn-outline-secondary" id="todayBtn">今天</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 显示日期: <strong>{{ date.strftime('%Y年%m月%d日') }}</strong>
+                        {% if current_class %}
+                            | 班级: <strong>{{ current_class }}</strong>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="student-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>班级</th>
+                                    <th>学号</th>
+                                    <th>姓名</th>
+                                    <th>签到状态</th>
+                                    <th>签到时间</th>
+                                    <th>暂离时间</th>
+                                    <th>返回时间</th>
+                                    <th>今日暂离次数</th>
+                                    <th>今日暂离分钟数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user, attendance in records %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ user.class_name or '-' }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.name }}</td>
+                                        <td>
+                                            {% if attendance and attendance.sign_in_time %}
+                                                <span class="badge badge-success status-badge">已签到</span>
+                                            {% else %}
+                                                <span class="badge badge-danger status-badge">未签到</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance and attendance.sign_in_time %}
+                                                {{ attendance.sign_in_time.strftime('%H:%M:%S') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance and attendance.leave_time %}
+                                                {{ attendance.leave_time.strftime('%H:%M:%S') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance and attendance.return_time %}
+                                                {{ attendance.return_time.strftime('%H:%M:%S') }}
+                                            {% else %}
+                                                {% if attendance and attendance.leave_time %}
+                                                    {% set active_leave = get_active_leave_record(user.id, attendance.id) %}
+                                                    {% if active_leave %}
+                                                        <span class="badge badge-warning status-badge">暂离中</span>
+                                                    {% else %}
+                                                        {% set latest_leave = get_latest_leave_record(user.id, attendance.id) %}
+                                                        {% if latest_leave and latest_leave.return_time %}
+                                                            {{ latest_leave.return_time.strftime('%H:%M:%S') }}
+                                                        {% else %}
+                                                            <span class="badge badge-secondary status-badge">未返回</span>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance %}
+                                                {% set leave_count = get_leave_count(user.id, attendance.id) %}
+                                                {{ leave_count }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if attendance %}
+                                                {% set leave_minutes = get_leave_minutes(user.id, attendance.id) %}
+                                                {{ leave_minutes }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="10" class="text-center py-4">暂无考勤记录</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">考勤统计</h5>
+                </div>
+                <div class="card-body">
+                    {% set total = records|length %}
+                    {% set signed_in = records|selectattr('1.sign_in_time', 'defined')|selectattr('1.sign_in_time', 'ne', None)|list|length %}
+                    {% set leave = records|selectattr('1.leave_time', 'defined')|selectattr('1.leave_time', 'ne', None)|selectattr('1.return_time', 'none')|list|length %}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <div class="number">{{ total }}</div>
+                                <div class="label">总人数</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <div class="number">{{ signed_in }}</div>
+                                <div class="label">已签到</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stats-box">
+                                <div class="number">{{ leave }}</div>
+                                <div class="label">暂离中</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            {% set total_leave_count = namespace(value=0) %}
+                            {% for user, attendance in records %}
+                                {% if attendance and attendance.id %}
+                                    {% set leave_count = get_leave_count(user.id, attendance.id) %}
+                                    {% set total_leave_count.value = total_leave_count.value + leave_count %}
+                                {% endif %}
+                            {% endfor %}
+                            <div class="stats-box">
+                                <div class="number">{{ total_leave_count.value }}</div>
+                                <div class="label">今日暂离总次数</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            {% set total_leave_minutes = namespace(value=0) %}
+                            {% for user, attendance in records %}
+                                {% if attendance and attendance.id %}
+                                    {% set leave_minutes = get_leave_minutes(user.id, attendance.id) %}
+                                    {% set total_leave_minutes.value = total_leave_minutes.value + leave_minutes %}
+                                {% endif %}
+                            {% endfor %}
+                            <div class="stats-box">
+                                <div class="number">{{ total_leave_minutes.value }}</div>
+                                <div class="label">今日暂离总分钟</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="mb-2">签到率:</p>
+                    <div class="progress">
+                        {% set signed_rate = (signed_in / total * 100) if total > 0 else 0 %}
+                        <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ signed_rate }}%;" aria-valuenow="{{ signed_rate|round }}" aria-valuemin="0" aria-valuemax="100">{{ signed_rate|round }}%</div>
+                    </div>
+                    <p class="text-right mb-0"><strong>{{ signed_rate|round(2) }}%</strong></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">操作说明</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="ps-3">
+                        <li>选择日期和班级进行筛选</li>
+                        <li>点击"导出考勤记录"可导出Excel文件</li>
+                        <li>点击"导出请假记录"可导出当日请假学生名单</li>
+                        <li>导出时可选择日期范围和班级</li>
+                    </ul>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i> 导出大量数据可能需要较长时间，请耐心等待。
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 请假记录卡片 -->
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">请假记录</h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="refreshAbsencesBtn">
+                        <i class="bi bi-arrow-repeat"></i> 刷新
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="absencesList">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">加载中...</span>
+                            </div>
+                            <p class="mt-2">加载请假记录...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 导出考勤模态框 -->
+<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportModalLabel">导出考勤记录</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{{ url_for('export_attendance') }}">
+                <div class="modal-body">
+                    {{ export_form.hidden_tag() }}
+                    <div class="form-group">
+                        <label for="start_date">{{ export_form.start_date.label.text }}</label>
+                        {{ export_form.start_date(class="form-control", id="start_date", type="date") }}
+                        {% if export_form.start_date.errors %}
+                            {% for error in export_form.start_date.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date">{{ export_form.end_date.label.text }}</label>
+                        {{ export_form.end_date(class="form-control", id="end_date", type="date") }}
+                        {% if export_form.end_date.errors %}
+                            {% for error in export_form.end_date.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="class_name">{{ export_form.class_name.label.text }}</label>
+                        {{ export_form.class_name(class="form-control", id="class_name") }}
+                        {% if export_form.class_name.errors %}
+                            {% for error in export_form.class_name.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group form-check">
+                        {{ export_form.export_photos(class="form-check-input", id="export_photos") }}
+                        <label class="form-check-label" for="export_photos">{{ export_form.export_photos.label.text }}</label>
+                        <div class="form-text text-muted">选择此选项将同时导出学生的签到、暂离和返回照片</div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i> 将导出指定日期范围内的考勤记录，最多支持6个月的数据。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    {{ export_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 使用CDN引入jQuery和Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-datepicker.zh-CN.min.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        // 导出按钮点击事件
+        $('#exportBtn').on('click', function() {
+            $('#exportModal').modal('show');
+        });
+        
+        // 日期选择器初始化
+        $('#datePicker').datepicker({
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            todayHighlight: true
+        });
+        
+        // 跳转到选定日期
+        $('#goToDate').on('click', function() {
+            var date = $('#datePicker').val();
+            var classFilter = $('#classFilter').val();
+            var url = '{{ url_for("attendance_records") }}?date=' + date;
+            
+            if (classFilter) {
+                url += '&class=' + encodeURIComponent(classFilter);
+            }
+            
+            window.location.href = url;
+        });
+        
+        // 应用班级筛选
+        $('#applyFilter').on('click', function() {
+            var date = $('#datePicker').val();
+            var classFilter = $('#classFilter').val();
+            var url = '{{ url_for("attendance_records") }}?date=' + date;
+            
+            if (classFilter) {
+                url += '&class=' + encodeURIComponent(classFilter);
+            }
+            
+            window.location.href = url;
+        });
+        
+        // 跳转到今天
+        $('#todayBtn').on('click', function() {
+            var today = new Date().toISOString().split('T')[0];
+            var classFilter = $('#classFilter').val();
+            var url = '{{ url_for("attendance_records") }}?date=' + today;
+            
+            if (classFilter) {
+                url += '&class=' + encodeURIComponent(classFilter);
+            }
+            
+            window.location.href = url;
+        });
+        
+        // 加载请假记录
+        function loadAbsences() {
+            var date = $('#datePicker').val();
+            if (!date) {
+                date = '{{ date.strftime("%Y-%m-%d") }}';
+            }
+            
+            $('#absencesList').html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="sr-only">加载中...</span></div><p class="mt-2">加载请假记录...</p></div>');
+            
+            $.ajax({
+                url: '/api/absences',
+                method: 'GET',
+                data: { date: date },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.absences && response.absences.length > 0) {
+                            var html = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>班级</th><th>学号</th><th>姓名</th><th>请假类型</th><th>原因</th></tr></thead><tbody>';
+                            
+                            response.absences.forEach(function(absence) {
+                                html += '<tr><td>' + (absence.class_name || '-') + '</td><td>' + absence.student_id + '</td><td>' + absence.student_name + '</td><td>' + absence.absence_type + '</td><td>' + (absence.reason || '-') + '</td></tr>';
+                            });
+                            
+                            html += '</tbody></table></div>';
+                            $('#absencesList').html(html);
+                        } else {
+                            $('#absencesList').html('<div class="alert alert-info">当日无请假记录</div>');
+                        }
+                    } else {
+                        $('#absencesList').html('<div class="alert alert-danger">加载请假记录失败: ' + (response.message || '未知错误') + '</div>');
+                    }
+                },
+                error: function() {
+                    $('#absencesList').html('<div class="alert alert-danger">加载请假记录失败，请稍后重试</div>');
+                }
+            });
+        }
+        
+        // 页面加载时获取请假记录
+        loadAbsences();
+        
+        // 刷新按钮点击事件
+        $('#refreshAbsencesBtn').on('click', function() {
+            loadAbsences();
+        });
+        
+        // 导出请假记录
+        $('#exportAbsencesBtn').on('click', function() {
+            var date = $('#datePicker').val() || '{{ date.strftime("%Y-%m-%d") }}';
+            window.location.href = '/api/export_absences?date=' + date;
+        });
+    });
+</script>
+{% endblock %} 

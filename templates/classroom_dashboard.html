@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ classroom_name }} - 晚自习签到系统{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="header-info">
+        <h2>{{ classroom_name }}</h2>
+        <p class="classroom-stats">
+            <span class="stat-item">
+                <i class="fas fa-users"></i>
+                总人数：<span id="totalCount">{{ students|length }}</span>
+            </span>
+            <span class="stat-item">
+                <i class="fas fa-check-circle"></i>
+                已签到：<span id="checkedInCount">0</span>
+            </span>
+            <span class="stat-item">
+                <i class="fas fa-clock"></i>
+                暂离：<span id="tempLeaveCount">0</span>
+            </span>
+        </p>
+    </div>
+    <div class="header-actions">
+        <button class="btn-primary" onclick="batchCheckOut()">
+            <i class="fas fa-sign-out-alt"></i>
+            一键签出
+        </button>
+    </div>
+</div>
+
+<div class="students-grid">
+    {% for student in students %}
+    <div class="student-card" data-student-id="{{ student.id }}" data-status="{{ student.status }}">
+        <div class="student-info">
+            <div class="avatar">
+                {% if student.avatar %}
+                <img src="{{ student.avatar }}" alt="{{ student.name }}">
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="details">
+                <h3>{{ student.name }}</h3>
+                <p class="student-id">学号：{{ student.student_id }}</p>
+                <p class="status-text">状态：<span class="status">{{ student.status_text }}</span></p>
+            </div>
+        </div>
+        <div class="student-actions">
+            <button class="action-btn check-in" onclick="showActionModal('{{ student.id }}', 'check-in')">
+                <i class="fas fa-sign-in-alt"></i>
+                签到
+            </button>
+            <button class="action-btn temp-leave" onclick="showActionModal('{{ student.id }}', 'temp-leave')">
+                <i class="fas fa-clock"></i>
+                暂离
+            </button>
+            <button class="action-btn check-out" onclick="showActionModal('{{ student.id }}', 'check-out')">
+                <i class="fas fa-sign-out-alt"></i>
+                签出
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 操作模态框 -->
+<div class="modal fade" id="actionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">学生签到</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="camera-container" id="cameraContainer">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div class="camera-overlay">
+                        <div class="camera-frame"></div>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="actionNote">备注（选填）：</label>
+                    <textarea class="form-control" id="actionNote" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="captureBtn">
+                    <i class="fas fa-camera"></i>
+                    拍照确认
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 一键签出确认模态框 -->
+<div class="modal fade" id="batchCheckOutModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">一键签出确认</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要将所有在校学生签出吗？</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    此操作将把所有未签出的学生状态改为已签出。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBatchCheckOut()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    确认签出
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/classroom.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/classroom.js') }}"></script>
+{% endblock %} 

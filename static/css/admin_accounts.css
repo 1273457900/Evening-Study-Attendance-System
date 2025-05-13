@@ -1,0 +1,241 @@
+/* 管理员账号网格 */
+.admin-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* 列表视图样式 */
+.admin-list-view {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: var(--text-color);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table th {
+    white-space: nowrap;
+    background-color: var(--light-bg-color);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+.btn-group-sm .btn {
+    margin: 0 2px;
+}
+
+/* 账号卡片 */
+.account-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.account-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* 账号信息 */
+.account-info {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.account-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-icon i {
+    font-size: 1.5rem;
+}
+
+.details {
+    flex: 1;
+}
+
+.details h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.account-id {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* 账号状态 */
+.account-status {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+}
+
+.account-status.active {
+    background-color: #e3f7e9;
+    color: #0a6b2c;
+}
+
+.account-status.inactive {
+    background-color: #fee7e7;
+    color: #d63031;
+}
+
+/* 操作按钮 */
+.account-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn i {
+    font-size: 1rem;
+}
+
+.action-btn.edit {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.action-btn.reset-pwd {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.action-btn.enable {
+    background-color: #e3f7e9;
+    color: #0a6b2c;
+}
+
+.action-btn.disable {
+    background-color: #fee7e7;
+    color: #d63031;
+}
+
+.action-btn:hover {
+    filter: brightness(0.95);
+    transform: translateY(-2px);
+}
+
+/* 模态框自定义样式 */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.form-text {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .admin-accounts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .account-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-btn {
+        padding: 0.75rem;
+    }
+}
+
+/* Toast提示消息 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.toast-warning {
+    background-color: #ffc107;
+    color: #333;
+} 

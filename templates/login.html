@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}教室管理员登录 - 晚自习签到系统{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-box">
+        <div class="login-header">
+            <h2>教室管理员登录</h2>
+            <p class="login-subtitle">欢迎使用晚自习签到系统</p>
+        </div>
+        
+        <form method="post" action="{{ url_for('login') }}" class="login-form">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-building"></i>
+                    教室账号
+                </label>
+                {{ form.username(class="form-input", id="username", placeholder="请输入教室账号（如：g503）", autocomplete="off") }}
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    密码
+                </label>
+                <div class="password-input-wrapper">
+                    {{ form.password(class="form-input", id="password", placeholder="请输入密码") }}
+                    <button type="button" class="toggle-password" onclick="togglePassword()">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.submit(class="login-button", value="登录") }}
+            </div>
+        </form>
+
+        <div class="admin-info">
+            <div class="info-box">
+                <h5><i class="fas fa-info-circle"></i> 使用说明</h5>
+                <p>
+                    <i class="fas fa-check"></i> 每个教室配备一个管理员账号<br>
+                    <i class="fas fa-check"></i> 账号格式为教室号（小写字母+数字）<br>
+                    <i class="fas fa-check"></i> 如需账号，请联系系统管理员
+                </p>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.querySelector('.toggle-password i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+document.querySelector('.login-form').addEventListener('submit', function(e) {
+    const button = this.querySelector('.login-button');
+    button.disabled = true;
+    button.value = '登录中...';
+});
+</script>
+{% endblock %} 

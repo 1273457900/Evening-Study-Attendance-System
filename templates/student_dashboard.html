@@ -1,0 +1,516 @@
+{% extends 'base.html' %}
+
+{% block title %}学生主页 - 晚自习签到系统{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    .modal-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 1.5rem;
+    }
+    .modal-body {
+        padding: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    .close {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #000;
+        opacity: .5;
+        background-color: transparent;
+        border: 0;
+    }
+    .close:hover {
+        color: #000;
+        opacity: .75;
+    }
+    #camera-feedback, #leave-camera-feedback {
+        margin-top: 15px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row fade-in">
+    <div class="col-md-12 mb-4">
+        <div class="alert alert-primary shadow-sm">
+            <div class="d-flex align-items-center">
+                <div class="fs-1 me-3"><i class="bi bi-person-circle"></i></div>
+                <div>
+                    <h4 class="alert-heading mb-1">欢迎, {{ current_user.name }}!</h4>
+                    <p class="mb-0">今天是 <strong>{{ now.strftime('%Y年%m月%d日') }}</strong>，晚自习签到系统帮助您高效管理考勤。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>签到状态</h5>
+                <span class="badge badge-primary">今日签到</span>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="status-indicator">
+                        {% if attendance and attendance.sign_in_time %}
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                            <h3 class="mt-3 text-success">已签到</h3>
+                            <p class="text-muted">
+                                签到时间: {{ attendance.sign_in_time.strftime('%H:%M:%S') }}
+                            </p>
+                        {% else %}
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
+                            <h3 class="mt-3 text-danger">未签到</h3>
+                            <p class="text-muted">
+                                请尽快完成晚自习签到
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    {% if not attendance or not attendance.sign_in_time %}
+                        <a href="{{ url_for('camera', action='sign_in') }}" class="btn btn-primary">
+                            <i class="bi bi-camera-fill me-2"></i> 拍照签到
+                        </a>
+                    {% else %}
+                        <button class="btn btn-success" disabled>
+                            <i class="bi bi-check2-circle me-2"></i> 已完成签到
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>暂离管理</h5>
+                <span class="badge badge-primary">临时外出</span>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="status-indicator">
+                        {% if attendance and attendance.id %}
+                            {% set active_leave = get_active_leave_record(current_user.id, attendance.id) %}
+                            {% if active_leave %}
+                                <i class="bi bi-hourglass-split text-warning" style="font-size: 5rem;"></i>
+                                <h3 class="mt-3 text-warning">暂离中</h3>
+                                <p class="text-muted">
+                                    暂离时间: {{ active_leave.leave_time.strftime('%H:%M:%S') }}
+                                </p>
+                            {% else %}
+                                {% set latest_leave = get_latest_leave_record(current_user.id, attendance.id) %}
+                                {% if latest_leave and latest_leave.return_time %}
+                                    <i class="bi bi-arrow-return-left text-info" style="font-size: 5rem;"></i>
+                                    <h3 class="mt-3 text-info">已返回</h3>
+                                    <p class="text-muted">
+                                        返回时间: {{ latest_leave.return_time.strftime('%H:%M:%S') }}
+                                    </p>
+                                {% else %}
+                                    <i class="bi bi-person-check text-success" style="font-size: 5rem;"></i>
+                                    <h3 class="mt-3 text-success">正常在班</h3>
+                                    <p class="text-muted">
+                                        需要暂时离开请点击"暂离登记"
+                                    </p>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <i class="bi bi-person-check text-success" style="font-size: 5rem;"></i>
+                            <h3 class="mt-3 text-success">正常在班</h3>
+                            <p class="text-muted">
+                                需要暂时离开请点击"暂离登记"
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    {% if not attendance or not attendance.sign_in_time %}
+                        <button class="btn btn-warning" disabled>
+                            <i class="bi bi-exclamation-triangle me-2"></i> 请先完成签到
+                        </button>
+                    {% elif attendance and attendance.leave_time and not attendance.return_time %}
+                        <button class="btn btn-info" id="returnBtn">
+                            <i class="bi bi-arrow-return-left me-2"></i> 返回登记
+                        </button>
+                    {% elif not attendance.leave_time or attendance.return_time %}
+                        <button class="btn btn-warning" id="leaveBtn">
+                            <i class="bi bi-box-arrow-right me-2"></i> 暂离登记
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in" style="animation-delay: 0.1s;">
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>学生信息</h5>
+                <span class="badge badge-primary">个人资料</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-person me-2"></i>姓名:</span>
+                                <span class="fw-bold">{{ current_user.name }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-credit-card me-2"></i>学号:</span>
+                                <span class="fw-bold">{{ current_user.username }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-people me-2"></i>班级:</span>
+                                <span class="fw-bold">{{ current_user.class_name }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-clock me-2"></i>当前时间:</span>
+                                <span class="fw-bold" id="current-time"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-calendar-date me-2"></i>考勤日期:</span>
+                                <span class="fw-bold">{{ now.strftime('%Y年%m月%d日') }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span><i class="bi bi-book me-2"></i>学期:</span>
+                                <span class="fw-bold">
+                                    {{ now.year }}年{% if now.month >= 9 or now.month <= 2 %}秋季{% else %}春季{% endif %}学期
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 暂离归来拍照模态框 -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnModalLabel">暂离归来拍照</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="camera-container" class="text-center">
+                    <video id="video" autoplay playsinline class="w-100 mb-3" style="max-height: 400px; border-radius: 0.5rem;"></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div id="camera-feedback" class="alert alert-info d-none">摄像头已启动，请点击"拍照"按钮</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="capture-btn">
+                    <i class="bi bi-camera"></i> 拍照
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 暂离登记拍照模态框 -->
+<div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="leaveModalLabel">暂离登记拍照</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="leave-camera-container" class="text-center">
+                    <video id="leave-video" autoplay playsinline class="w-100 mb-3" style="max-height: 400px; border-radius: 0.5rem;"></video>
+                    <canvas id="leave-canvas" style="display: none;"></canvas>
+                    <div id="leave-camera-feedback" class="alert alert-info d-none">摄像头已启动，请点击"拍照"按钮</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="leave-capture-btn">
+                    <i class="bi bi-camera"></i> 拍照
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // 显示当前时间
+        function updateTime() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            $('#current-time').text(hours + ':' + minutes + ':' + seconds);
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // 暂离归来拍照功能
+        $('#returnBtn').on('click', function() {
+            // 显示模态框
+            var returnModal = new bootstrap.Modal(document.getElementById('returnModal'));
+            returnModal.show();
+            
+            // 初始化相机
+            initCamera();
+        });
+        
+        // 初始化相机
+        let stream;
+        let video;
+        let canvas;
+        
+        function initCamera() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            const feedback = document.getElementById('camera-feedback');
+            
+            // 设置canvas尺寸
+            canvas.width = 640;
+            canvas.height = 480;
+            
+            // 获取媒体设备
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: false
+            })
+            .then(function(mediaStream) {
+                stream = mediaStream;
+                video.srcObject = stream;
+                video.onloadedmetadata = function(e) {
+                    video.play();
+                };
+                
+                // 显示相机反馈信息
+                feedback.textContent = '摄像头已启动，请点击"拍照"按钮';
+                feedback.classList.remove('d-none', 'alert-danger');
+                feedback.classList.add('alert-info');
+            })
+            .catch(function(err) {
+                console.error('无法访问相机: ', err);
+                feedback.textContent = '无法访问相机，请确保已授予相机权限';
+                feedback.classList.remove('d-none', 'alert-info');
+                feedback.classList.add('alert-danger');
+            });
+            
+            // 拍照按钮点击事件
+            document.getElementById('capture-btn').addEventListener('click', function() {
+                if (!stream) {
+                    feedback.textContent = '相机未就绪，请刷新页面重试';
+                    feedback.classList.remove('d-none', 'alert-info');
+                    feedback.classList.add('alert-danger');
+                    return;
+                }
+                
+                // 绘制视频帧到Canvas
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // 获取图像数据
+                const imageData = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // 显示处理中
+                feedback.textContent = '正在处理...';
+                feedback.classList.remove('d-none', 'alert-danger');
+                feedback.classList.add('alert-info');
+                
+                // 提交图像数据
+                const formData = new FormData();
+                formData.append('photo', imageData);
+                formData.append('action', 'return');
+                
+                fetch('{{ url_for("return_signin") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        feedback.textContent = data.message + '，即将返回主页...';
+                        feedback.classList.remove('alert-info', 'alert-danger');
+                        feedback.classList.add('alert-success');
+                        
+                        // 停止相机流
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                        
+                        // 3秒后刷新页面
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        feedback.textContent = '提交失败: ' + data.message;
+                        feedback.classList.remove('alert-info', 'alert-success');
+                        feedback.classList.add('alert-danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('提交失败:', error);
+                    feedback.textContent = '提交失败，请重试';
+                    feedback.classList.remove('alert-info', 'alert-success');
+                    feedback.classList.add('alert-danger');
+                });
+            });
+            
+            // 模态框关闭时停止相机流
+            document.getElementById('returnModal').addEventListener('hidden.bs.modal', function() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            });
+        }
+        
+        // 暂离登记拍照功能
+        $('#leaveBtn').on('click', function() {
+            // 显示模态框
+            var leaveModal = new bootstrap.Modal(document.getElementById('leaveModal'));
+            leaveModal.show();
+            
+            // 初始化相机
+            initLeaveCamera();
+        });
+        
+        // 初始化暂离相机
+        let leaveStream;
+        let leaveVideo;
+        let leaveCanvas;
+        
+        function initLeaveCamera() {
+            leaveVideo = document.getElementById('leave-video');
+            leaveCanvas = document.getElementById('leave-canvas');
+            const feedback = document.getElementById('leave-camera-feedback');
+            
+            // 设置canvas尺寸
+            leaveCanvas.width = 640;
+            leaveCanvas.height = 480;
+            
+            // 获取媒体设备
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: false
+            })
+            .then(function(mediaStream) {
+                leaveStream = mediaStream;
+                leaveVideo.srcObject = leaveStream;
+                leaveVideo.onloadedmetadata = function(e) {
+                    leaveVideo.play();
+                };
+                
+                // 显示相机反馈信息
+                feedback.textContent = '摄像头已启动，请点击"拍照"按钮';
+                feedback.classList.remove('d-none', 'alert-danger');
+                feedback.classList.add('alert-info');
+            })
+            .catch(function(err) {
+                console.error('无法访问相机: ', err);
+                feedback.textContent = '无法访问相机，请确保已授予相机权限';
+                feedback.classList.remove('d-none', 'alert-info');
+                feedback.classList.add('alert-danger');
+            });
+            
+            // 拍照按钮点击事件
+            document.getElementById('leave-capture-btn').addEventListener('click', function() {
+                if (!leaveStream) {
+                    feedback.textContent = '相机未就绪，请刷新页面重试';
+                    feedback.classList.remove('d-none', 'alert-info');
+                    feedback.classList.add('alert-danger');
+                    return;
+                }
+                
+                // 绘制视频帧到Canvas
+                const context = leaveCanvas.getContext('2d');
+                context.drawImage(leaveVideo, 0, 0, leaveCanvas.width, leaveCanvas.height);
+                
+                // 获取图像数据
+                const imageData = leaveCanvas.toDataURL('image/jpeg', 0.9);
+                
+                // 显示处理中
+                feedback.textContent = '正在处理...';
+                feedback.classList.remove('d-none', 'alert-danger');
+                feedback.classList.add('alert-info');
+                
+                // 提交图像数据
+                const formData = new FormData();
+                formData.append('photo', imageData);
+                formData.append('action', 'leave');
+                
+                fetch('{{ url_for("leave") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        feedback.textContent = data.message + '，即将返回主页...';
+                        feedback.classList.remove('alert-info', 'alert-danger');
+                        feedback.classList.add('alert-success');
+                        
+                        // 停止相机流
+                        if (leaveStream) {
+                            leaveStream.getTracks().forEach(track => track.stop());
+                        }
+                        
+                        // 3秒后刷新页面
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        feedback.textContent = '提交失败: ' + data.message;
+                        feedback.classList.remove('alert-info', 'alert-success');
+                        feedback.classList.add('alert-danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('提交失败:', error);
+                    feedback.textContent = '提交失败，请重试';
+                    feedback.classList.remove('alert-info', 'alert-success');
+                    feedback.classList.add('alert-danger');
+                });
+            });
+            
+            // 模态框关闭时停止相机流
+            document.getElementById('leaveModal').addEventListener('hidden.bs.modal', function() {
+                if (leaveStream) {
+                    leaveStream.getTracks().forEach(track => track.stop());
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,10 @@
+Flask==2.3.3
+cryptography==42.0.2
+qrcode[pil]
+openpyxl
+flask-login
+flask-sqlalchemy
+flask-wtf
+pymysql
+pandas
+Pillow>=9.0.0 

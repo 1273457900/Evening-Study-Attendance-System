@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block title %}学生管理 - 晚自习签到系统{% endblock %}
+
+{% block extra_css %}
+<!-- 直接使用CDN引入Bootstrap和Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .student-table th, .student-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+    .student-table th {
+        background-color: #f8f9fa;
+        font-weight: 500;
+        text-align: left;
+    }
+    .student-table tr:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 0;
+    }
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 1.5rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">学生名单</h4>
+            <div>
+                <button type="button" class="btn btn-outline-primary me-2" id="addStudentBtn">
+                    <i class="bi bi-person-plus"></i> 添加学生
+                </button>
+                <button type="button" class="btn btn-outline-primary me-2" id="importBtn">
+                    <i class="bi bi-upload"></i> 导入名单
+                </button>
+                <a href="{{ url_for('download_template') }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-download"></i> 下载模板
+                </a>
+                <a href="{{ url_for('sync_students_to_classroom_admins') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-repeat"></i> 同步教室管理员
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-3 d-flex align-items-center">
+                <select id="classFilter" class="form-select me-3" style="width: auto;">
+                    <option value="">所有班级</option>
+                    {% for class_name in classes %}
+                        <option value="{{ class_name }}">{{ class_name }}</option>
+                    {% endfor %}
+                </select>
+                <span>总学生数: <span class="fw-bold">{{ students|length }}</span></span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>班级</th>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>教室位置</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr class="student-row" data-class="{{ student.class_name }}">
+                                <td>{{ loop.index }}</td>
+                                <td>{{ student.class_name or '-' }}</td>
+                                <td>{{ student.username }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.classroom_location or '-' }}</td>
+                                <td>
+                                    <button class="btn-icon delete-student" data-student-id="{{ student.id }}" data-student-name="{{ student.name }}">
+                                        <i class="bi bi-trash fs-5"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">暂无学生数据</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加学生模态框 -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStudentModalLabel">添加学生</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="addStudentForm" method="post" action="{{ url_for('add_student') }}">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="class_name">班级</label>
+                        <input type="text" class="form-control" id="class_name" name="class_name" required placeholder="例如：高一(1)班">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">学号</label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="例如：20230101">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" class="form-control" id="name" name="name" required placeholder="请输入学生姓名">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">初始密码</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="请输入初始密码">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="classroom_location">教室位置</label>
+                        <input type="text" class="form-control" id="classroom_location" name="classroom_location" placeholder="例如：G503">
+                        <small class="form-text text-muted">如果填写教室位置，系统会自动关联对应的教室管理员</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 导入学生模态框 -->
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">导入学生名单</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{{ url_for('import_students') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {{ import_form.hidden_tag() }}
+                    <div class="form-group">
+                        <label for="file">{{ import_form.file.label.text }}</label>
+                        {{ import_form.file(class="form-control", id="file") }}
+                        {% if import_form.file.errors %}
+                            {% for error in import_form.file.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <small class="form-text text-muted">请选择Excel文件（.xlsx或.xls格式）</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    {{ import_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认模态框 -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">确认删除</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+                <p class="mt-3">确定要删除学生 <span id="deleteStudentName" class="font-weight-bold"></span> 吗？</p>
+                <p class="text-danger"><small>此操作不可恢复！</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 使用CDN引入jQuery和Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 使用jQuery的$(document).ready确保DOM加载完毕
+    $(document).ready(function() {
+        // 添加学生模态框
+        $('#addStudentBtn').on('click', function() {
+            $('#addStudentModal').modal('show');
+        });
+        
+        // 导入名单模态框
+        $('#importBtn').on('click', function() {
+            $('#importModal').modal('show');
+        });
+
+        // 班级筛选
+        $('#classFilter').on('change', function() {
+            var selectedClass = $(this).val();
+            if (selectedClass === '') {
+                $('.student-row').show();
+            } else {
+                $('.student-row').hide();
+                $('.student-row[data-class="' + selectedClass + '"]').show();
+            }
+        });
+
+        // 删除学生
+        $('.delete-student').on('click', function() {
+            var studentId = $(this).data('student-id');
+            var studentName = $(this).data('student-name');
+            $('#deleteStudentName').text(studentName);
+            $('#confirmDelete').data('student-id', studentId);
+            $('#deleteConfirmModal').modal('show');
+        });
+
+        // 确认删除
+        $('#confirmDelete').on('click', function() {
+            var studentId = $(this).data('student-id');
+            var btn = $(this);
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> 删除中...');
+
+            $.ajax({
+                url: '/api/students/' + studentId,
+                method: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        $('#deleteConfirmModal').modal('hide');
+                        alert('删除成功');
+                        location.reload();
+                    } else {
+                        alert('删除失败：' + (response.message || '请稍后重试'));
+                    }
+                },
+                error: function() {
+                    alert('删除失败，服务器错误，请稍后重试');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('确认删除');
+                }
+            });
+        });
+
+        // 密码显示切换
+        $('#togglePassword').on('click', function() {
+            var passwordInput = document.getElementById('password');
+            var icon = $(this).find('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.removeClass('bi-eye').addClass('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.removeClass('bi-eye-slash').addClass('bi-eye');
+            }
+        });
+
+        // 添加学生表单提交
+        $('#addStudentForm').on('submit', function(event) {
+            event.preventDefault();
+            
+            var submitBtn = $('#submitBtn');
+            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1"></span> 添加中...');
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        $('#addStudentModal').modal('hide');
+                        alert('添加成功');
+                        location.reload();
+                    } else {
+                        alert('添加失败：' + (response.message || '请稍后重试'));
+                    }
+                },
+                error: function() {
+                    alert('添加失败，服务器错误，请稍后重试');
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false).text('添加');
+                }
+            });
+        });
+
+        // 模态框被隐藏时重置表单
+        $('#addStudentModal').on('hidden.bs.modal', function() {
+            $('#addStudentForm')[0].reset();
+        });
+    });
+</script>
+{% endblock %} 

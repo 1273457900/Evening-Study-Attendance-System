@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}拍照签到 - 晚自习签到系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    {% if action == 'sign_in' %}
+                        <i class="bi bi-camera-fill"></i> 拍照签到
+                    {% elif action == 'leave' %}
+                        <i class="bi bi-box-arrow-right"></i> 暂离登记
+                    {% elif action == 'return' %}
+                        <i class="bi bi-arrow-return-left"></i> 返回登记
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle-fill"></i> 
+                    {% if action == 'sign_in' %}
+                        请面对摄像头，点击"拍照"按钮完成签到
+                    {% elif action == 'leave' %}
+                        请面对摄像头，点击"拍照"按钮完成暂离登记
+                    {% elif action == 'return' %}
+                        请面对摄像头，点击"拍照"按钮完成返回登记
+                    {% endif %}
+                </div>
+                
+                {% if current_user.role == 'classroom_admin' %}
+                <div class="mb-3">
+                    <label for="student-select" class="form-label">选择学生</label>
+                    <select class="form-control" id="student-select">
+                        <option value="">-- 请选择学生 --</option>
+                        {% for student in students %}
+                        <option value="{{ student.id }}" {% if selected_student and selected_student.id == student.id %}selected{% endif %}>
+                            {{ student.name }} ({{ student.username }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                
+                <div class="camera-container mb-3">
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="watermark" id="watermark">
+                            <span id="datetime"></span>
+                            <span id="username">{{ current_user.name }} ({{ current_user.username }})</span>
+                        </div>
+                    </div>
+                    
+                    <div class="camera-feedback" id="camera-feedback" style="display: none;"></div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="capture">
+                        <i class="bi bi-camera"></i> 拍照
+                    </button>
+                    {% if current_user.role == 'student' %}
+                    <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> 返回
+                    </a>
+                    {% elif current_user.role == 'classroom_admin' %}
+                    <a href="{{ url_for('classroom_admin_dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> 返回
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <!-- 隐藏的canvas用于处理图像 -->
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 获取HTML元素
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture');
+    const watermarkElement = document.getElementById('watermark');
+    const datetimeElement = document.getElementById('datetime');
+    const feedbackElement = document.getElementById('camera-feedback');
+    
+    // 存储当前动作
+    const action = '{{ action }}';
+    const isAdmin = '{{ current_user.role }}' === 'classroom_admin';
+    
+    // 更新日期时间
+    function updateDateTime() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('zh-CN');
+        const timeStr = now.toLocaleTimeString('zh-CN');
+        datetimeElement.textContent = `${dateStr} ${timeStr}`;
+    }
+    
+    // 定时更新水印时间
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // 初始化摄像头
+    async function initCamera() {
+        try {
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                }
+            };
+            
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            
+            video.addEventListener('loadedmetadata', () => {
+                // 设置canvas大小与视频一致
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+            });
+            
+            showFeedback('摄像头已启动，请面向摄像头并点击"拍照"按钮', 'success');
+        } catch (err) {
+            console.error('摄像头访问失败:', err);
+            showFeedback('无法访问摄像头，请确保已授予摄像头权限', 'danger');
+        }
+    }
+    
+    // 显示反馈信息
+    function showFeedback(message, type = 'info') {
+        feedbackElement.textContent = message;
+        feedbackElement.style.display = 'block';
+        
+        // 根据类型设置背景色
+        if (type === 'success') {
+            feedbackElement.style.backgroundColor = 'rgba(40, 167, 69, 0.7)';
+        } else if (type === 'danger') {
+            feedbackElement.style.backgroundColor = 'rgba(220, 53, 69, 0.7)';
+        } else {
+            feedbackElement.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        }
+    }
+    
+    // 拍照并上传
+    captureBtn.addEventListener('click', () => {
+        // 在canvas上绘制视频帧
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // 在图像上绘制水印
+        context.font = '20px Arial';
+        context.fillStyle = 'white';
+        context.shadowColor = 'black';
+        context.shadowBlur = 3;
+        
+        const datetime = datetimeElement.textContent;
+        const username = '{{ current_user.name }} ({{ current_user.username }})';
+        
+        // 底部水印
+        context.fillText(datetime, 20, canvas.height - 20);
+        context.fillText(username, 20, canvas.height - 50);
+        
+        // 获取图像数据
+        const imageData = canvas.toDataURL('image/png');
+        
+        // 确定提交URL和返回URL
+        let submitUrl;
+        let returnUrl;
+        
+        if (isAdmin) {
+            // 管理员拍照
+            const studentSelect = document.getElementById('student-select');
+            const studentId = studentSelect.value;
+            
+            if (!studentId) {
+                showFeedback('请选择一个学生', 'danger');
+                return;
+            }
+            
+            submitUrl = '{{ url_for("admin_photo") }}';
+            returnUrl = '{{ url_for("classroom_admin_dashboard") }}';
+        } else {
+            // 学生拍照
+            if (action === 'leave') {
+                submitUrl = '{{ url_for("leave") }}';
+            } else if (action === 'return') {
+                submitUrl = '{{ url_for("return_signin") }}';
+            } else {
+                // 默认为学生签到，但这个功能其实由教室管理员代为操作
+                showFeedback('学生拍照功能暂时不可用，请联系教室管理员', 'danger');
+                return;
+            }
+            returnUrl = '{{ url_for("student_dashboard") }}';
+        }
+        
+        // 提交图像数据
+        if (submitUrl) {
+            showFeedback('正在处理...', 'info');
+            
+            // 准备表单数据
+            const formData = new FormData();
+            formData.append('photo', imageData);
+            formData.append('action', action);
+            
+            if (isAdmin) {
+                const studentSelect = document.getElementById('student-select');
+                formData.append('student_id', studentSelect.value);
+            }
+            
+            // 发送请求
+            fetch(submitUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showFeedback(data.message + '，即将返回主页...', 'success');
+                    // 3秒后返回主页
+                    setTimeout(() => {
+                        window.location.href = returnUrl;
+                    }, 3000);
+                } else {
+                    showFeedback('提交失败: ' + data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('提交失败:', error);
+                showFeedback('提交失败，请重试', 'danger');
+            });
+        }
+    });
+    
+    // 页面加载后初始化摄像头
+    document.addEventListener('DOMContentLoaded', initCamera);
+</script>
+{% endblock %} 

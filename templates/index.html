@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>相机拍照与实时水印</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>相机拍照与实时水印</h1>
+        
+        <div class="camera-container">
+            <div class="video-container">
+                <video id="video" autoplay playsinline muted></video>
+                <div id="watermark" class="watermark">
+                    <span id="watermark-text">水印文字</span>
+                    <span id="watermark-time"></span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="capture-btn">拍照</button>
+                <input type="text" id="watermark-input" placeholder="输入水印文字" value="水印文字">
+                <select id="watermark-position">
+                    <option value="top-left">左上角</option>
+                    <option value="top-right">右上角</option>
+                    <option value="bottom-left">左下角</option>
+                    <option value="bottom-right" selected>右下角</option>
+                    <option value="center">中心</option>
+                </select>
+                <input type="color" id="watermark-color" value="#ffffff">
+            </div>
+        </div>
+        
+        <div class="result-container">
+            <h2>拍照结果</h2>
+            <div class="canvas-container">
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="photo-controls">
+                <button id="download-btn">下载照片</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>首次使用时请允许网页访问摄像头</li>
+                <li>可以使用"切换摄像头"按钮在前后摄像头之间切换</li>
+                <li>您可以自定义水印文字、位置和颜色</li>
+                <li>点击"拍照"按钮拍摄照片</li>
+                <li>点击"下载照片"保存照片到设备</li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html> 

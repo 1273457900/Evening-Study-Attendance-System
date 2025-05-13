@@ -1,0 +1,1053 @@
+{% extends 'base.html' %}
+
+{% block title %}教室管理员 - {{ classroom_name }} - 晚自习签到系统{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>{{ classroom_name }} 教室管理</h2>
+    <div class="today-date">{{ today.strftime('%Y年%m月%d日') }}</div>
+</div>
+
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">学生总数</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-person-check-fill"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ signed_in }}</div>
+            <div class="stat-label">已签到</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="bi bi-graph-up"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ signed_in_rate }}%</div>
+            <div class="stat-label">签到率</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">
+            <i class="bi bi-box-arrow-left"></i>
+        </div>
+        <div class="stat-content">
+            <button id="signOutAllBtn" class="btn btn-danger mt-2" style="width: 100%;">
+                <i class="bi bi-box-arrow-left"></i> 一键全部签出
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h3>教室学生列表</h3>
+    
+    <div class="student-card-grid">
+        {% for student in students %}
+        <div class="student-card" data-student-id="{{ student.id }}">
+            <div class="student-header">
+                <div class="student-avatar">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="student-info">
+                    <h4>{{ student.name }}</h4>
+                    <p class="student-id">学号：{{ student.username }}</p>
+                    <p class="student-class">班级：{{ student.class_name }}</p>
+                    <p class="student-status">
+                        {% set today_record = get_today_record(student.id) %}
+                        {% set today_absence = get_today_absence(student.id) %}
+                        {% if today_absence %}
+                            <span class="badge badge-info">已请假</span>
+                        {% elif today_record and today_record.leave_time and not today_record.return_time %}
+                            {% set active_leave = get_active_leave_record(student.id, today_record.id) %}
+                            {% if active_leave %}
+                                <span class="badge badge-warning">暂离中</span>
+                            {% else %}
+                                <span class="badge badge-success">已签到</span>
+                            {% endif %}
+                        {% elif today_record and today_record.sign_out_time %}
+                            <span class="badge badge-danger">已签出</span>
+                        {% elif today_record and today_record.sign_in_time %}
+                            <span class="badge badge-success">已签到</span>
+                        {% else %}
+                            <span class="badge badge-secondary">未签到</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="student-actions">
+                {% set today_record = get_today_record(student.id) %}
+                {% set today_absence = get_today_absence(student.id) %}
+                
+                {% if today_absence %}
+                    <!-- 已请假的学生不显示操作按钮 -->
+                    <div class="action-btn disabled">
+                        <i class="bi bi-calendar-check"></i>
+                        已请假({{ today_absence.absence_type }})
+                    </div>
+                {% elif today_record and today_record.sign_out_time %}
+                    <!-- 已签出的学生不显示操作按钮 -->
+                    <div class="action-btn disabled">
+                        <i class="bi bi-check-circle-fill"></i>
+                        已签出
+                    </div>
+                {% elif today_record and today_record.sign_in_time %}
+                    {% set active_leave = get_active_leave_record(student.id, today_record.id) %}
+                    {% if active_leave %}
+                        <button class="action-btn return-btn" onclick="handleReturn('{{ student.id }}')">
+                            <i class="bi bi-arrow-return-left"></i>
+                            暂离归来
+                        </button>
+                    {% else %}
+                        <button class="action-btn leave-btn" onclick="handleLeave('{{ student.id }}')">
+                            <i class="bi bi-box-arrow-right"></i>
+                            暂离
+                        </button>
+                        <button class="action-btn signout-btn" onclick="handleSignOut('{{ student.id }}')">
+                            <i class="bi bi-box-arrow-left"></i>
+                            签出
+                        </button>
+                        <button class="action-btn absence-btn" onclick="handleAbsence('{{ student.id }}', '{{ student.name }}')">
+                            <i class="bi bi-calendar-x"></i>
+                            请假
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <button class="action-btn signin-btn" onclick="handleSignIn('{{ student.id }}')">
+                        <i class="bi bi-check-circle"></i>
+                        签到
+                    </button>
+                    <button class="action-btn absence-btn" onclick="handleAbsence('{{ student.id }}', '{{ student.name }}')">
+                        <i class="bi bi-calendar-x"></i>
+                        请假
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="no-students">
+            <i class="bi bi-exclamation-circle"></i>
+            <p>暂无学生关联到该教室</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="section">
+    <h3>管理员信息</h3>
+    <div class="admin-info-card">
+        <div class="info-group">
+            <div class="info-label">教室名称:</div>
+            <div class="info-value">{{ classroom_name }}</div>
+        </div>
+       
+        <div class="info-group">
+            <div class="info-label">上次登录:</div>
+            <div class="info-value">
+                {% if current_user.last_login %}
+                {{ current_user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}
+                {% else %}
+                这是首次登录
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 暂离归来拍照模态框 -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered  modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnModalLabel">暂离归来拍照</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="camera-container" class="text-center">
+                    <video id="video" autoplay playsinline class="w-100 mb-3" style="max-height: 320px; border-radius: 0.5rem;"></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div id="camera-feedback" class="alert alert-info d-none">摄像头已启动，请点击"拍照"按钮</div>
+                </div>
+                
+                <input type="hidden" id="student-id-for-return">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="capture-btn"><i class="bi bi-camera"></i> 拍照</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 一键全部签出确认模态框 -->
+<div class="modal fade" id="signOutAllModal" tabindex="-1" aria-labelledby="signOutAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="signOutAllModalLabel">确认全部签出</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3rem;"></i>
+                <p class="mt-3">确定要将<strong>所有已签到学生</strong>一键签出吗？</p>
+                <p class="text-danger"><small>此操作不可撤销！签出后学生当天无法再次签到。</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" id="confirmSignOutAll">
+                    <i class="bi bi-box-arrow-left"></i> 确认全部签出
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 请假模态框 -->
+<div class="modal fade" id="absenceModal" tabindex="-1" aria-labelledby="absenceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="absenceModalLabel">学生请假</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="student-id-for-absence">
+                
+                <div class="form-group">
+                    <label for="student-name-display">学生姓名</label>
+                    <input type="text" class="form-control" id="student-name-display" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="absence-type">请假类型</label>
+                    <select class="form-control" id="absence-type">
+                        <option value="">-- 请选择请假类型 --</option>
+                        <option value="事假">事假</option>
+                        <option value="病假">病假</option>
+                        <option value="社团活动">社团活动</option>
+                        <option value="学生会">学生会</option>
+                        <option value="比赛">比赛</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="absence-reason">请假原因</label>
+                    <textarea class="form-control" id="absence-reason" rows="3" placeholder="请输入详细的请假原因"></textarea>
+                </div>
+                
+                <div id="absence-feedback" class="alert alert-danger mt-3" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirm-absence">
+                    <i class="bi bi-calendar-check"></i> 确认请假
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .today-date {
+        font-size: 1.2rem;
+        color: #666;
+    }
+    
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+    
+    .stat-content {
+        flex: 1;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    .section {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .section h3 {
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.75rem;
+    }
+    
+    .student-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .student-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        transition: all 0.2s;
+    }
+    
+    .student-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .student-header {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    
+    .student-avatar {
+        width: 60px;
+        height: 60px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: #aaa;
+        font-size: 1.5rem;
+    }
+    
+    .student-info {
+        flex: 1;
+    }
+    
+    .student-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+    
+    .student-info p {
+        margin-bottom: 0.25rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .student-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    
+    .action-btn i {
+        margin-right: 0.5rem;
+    }
+    
+    .signin-btn {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .leave-btn {
+        background: #ffc107;
+        color: #333;
+    }
+    
+    .return-btn {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .signout-btn {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .absence-btn {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .disabled {
+        background: #f8f9fa;
+        color: #aaa;
+        cursor: not-allowed;
+    }
+    
+    .admin-info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .info-group {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+    
+    .info-label {
+        width: 120px;
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .info-value {
+        flex: 1;
+        color: #333;
+    }
+    
+    .no-students {
+        grid-column: 1 / -1;
+        padding: 3rem;
+        text-align: center;
+        color: #aaa;
+    }
+    
+    .no-students i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 模态框样式优化 */
+    .modal-content {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .modal-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #eee;
+        padding: 1rem 1.5rem;
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+    
+    .close {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #000;
+        opacity: .5;
+        background-color: transparent;
+        border: 0;
+    }
+    
+    .close:hover {
+        color: #000;
+        opacity: .75;
+    }
+    
+    #camera-feedback {
+        margin-top: 15px;
+        font-size: 0.9rem;
+    }
+    
+    #video {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 页面加载完成后的调试检查
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[DEBUG] 页面加载完成，开始检查学生状态');
+        
+        // 查找所有学生卡片
+        const studentCards = document.querySelectorAll('.student-card');
+        console.log(`[DEBUG] 找到${studentCards.length}个学生卡片`);
+        
+        studentCards.forEach(card => {
+            const studentId = card.getAttribute('data-student-id');
+            const statusElement = card.querySelector('.student-status');
+            
+            if (statusElement) {
+                console.log(`[DEBUG] 学生ID: ${studentId}, 状态: ${statusElement.textContent.trim()}`);
+            }
+        });
+
+        // 一键全部签出按钮点击事件
+        document.getElementById('signOutAllBtn').addEventListener('click', function() {
+            // 使用 Bootstrap 4.6.0 的方式显示模态框
+            $('#signOutAllModal').modal('show');
+        });
+
+        // 确认全部签出
+        document.getElementById('confirmSignOutAll').addEventListener('click', function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
+            
+            fetch('/api/sign_out_all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    classroom_name: '{{ classroom_name }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`签出成功！共签出 ${data.count || 0} 名学生。`);
+                    location.reload();
+                } else {
+                    alert('操作失败: ' + (data.message || '未知错误'));
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-box-arrow-left"></i> 确认全部签出';
+                }
+            })
+            .catch(error => {
+                console.error('签出错误:', error);
+                alert('操作失败，请重试');
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-box-arrow-left"></i> 确认全部签出';
+            });
+        });
+        
+        // 确认请假按钮点击事件
+        document.getElementById('confirm-absence').addEventListener('click', function() {
+            const studentId = document.getElementById('student-id-for-absence').value;
+            const absenceType = document.getElementById('absence-type').value;
+            const reason = document.getElementById('absence-reason').value;
+            const feedbackElement = document.getElementById('absence-feedback');
+            
+            // 验证请假类型
+            if (!absenceType) {
+                feedbackElement.textContent = '请选择请假类型';
+                feedbackElement.style.display = 'block';
+                return;
+            }
+            
+            // 禁用按钮，显示加载状态
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> 处理中...';
+            feedbackElement.style.display = 'none';
+            
+            // 提交请假记录
+            fetch('/api/absence', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    absence_type: absenceType,
+                    reason: reason
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('请假记录已创建');
+                    // 关闭模态框 - 使用 Bootstrap 4.6.0 的方式
+                    $('#absenceModal').modal('hide');
+                    
+                    // 更新学生卡片UI
+                    const studentCard = document.querySelector(`[data-student-id="${studentId}"]`);
+                    if (studentCard) {
+                        const statusElement = studentCard.querySelector('.student-status');
+                        if (statusElement) {
+                            statusElement.innerHTML = '<span class="badge badge-info">已请假</span>';
+                        }
+                    }
+                } else {
+                    feedbackElement.textContent = data.message || '请假失败，请重试';
+                    feedbackElement.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('请假错误:', error);
+                feedbackElement.textContent = '请假失败，请重试';
+                feedbackElement.style.display = 'block';
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-calendar-check"></i> 确认请假';
+            });
+        });
+    });
+    
+    // 处理请假
+    function handleAbsence(studentId, studentName) {
+        // 设置模态框中的学生信息
+        document.getElementById('student-id-for-absence').value = studentId;
+        document.getElementById('student-name-display').value = studentName;
+        document.getElementById('absence-reason').value = '';
+        document.getElementById('absence-type').selectedIndex = 0;
+        document.getElementById('absence-feedback').style.display = 'none';
+        
+        // 显示模态框 - 使用 Bootstrap 4.6.0 的方式
+        $('#absenceModal').modal('show');
+    }
+
+    // 处理签到
+    function handleSignIn(studentId) {
+        if (!confirm('确定为该学生签到吗？')) return;
+        
+        fetch('/api/sign_in', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                student_id: studentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('签到成功');
+                location.reload();
+            } else {
+                alert('签到失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('签到错误:', error);
+            alert('签到发生错误，请重试');
+        });
+    }
+    
+    // 处理暂离
+    function handleLeave(studentId) {
+        console.log('[DEBUG] handleLeave函数被调用，学生ID:', studentId);
+        if (!confirm('确定为该学生登记暂离吗？')) {
+            console.log('[DEBUG] 用户取消了暂离确认');
+            return;
+        }
+        
+        // 记录操作开始时间
+        const startTime = new Date();
+        console.log('[DEBUG] 准备发送暂离请求到服务器，开始时间:', startTime);
+        
+        fetch('/api/leave', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                student_id: studentId
+            })
+        })
+        .then(response => {
+            const responseTime = new Date();
+            const elapsed = responseTime - startTime;
+            console.log(`[DEBUG] 收到服务器响应状态: ${response.status}，用时: ${elapsed}ms`);
+            console.log('[DEBUG] 响应头:', [...response.headers].map(h => `${h[0]}: ${h[1]}`).join(', '));
+            return response.json();
+        })
+        .then(data => {
+            console.log('[DEBUG] 解析响应数据:', data);
+            if (data.success) {
+                console.log('[DEBUG] 暂离登记成功，准备刷新页面');
+                console.log('[DEBUG] 服务器返回的学生姓名:', data.student_name);
+                console.log('[DEBUG] 服务器返回的时间戳:', data.time);
+                
+                // 记录DOM状态
+                let studentCardElement = document.querySelector(`[data-student-id="${studentId}"]`);
+                if (studentCardElement) {
+                    console.log('[DEBUG] 找到学生卡片元素:', studentCardElement);
+                    let statusElement = studentCardElement.querySelector('.student-status');
+                    if (statusElement) {
+                        console.log('[DEBUG] 当前状态显示:', statusElement.innerHTML);
+                        
+                        // 直接更新UI而不依赖刷新
+                        statusElement.innerHTML = '<span class="badge badge-warning">暂离中</span>';
+                        console.log('[DEBUG] 已更新状态为暂离中');
+                        
+                        // 更新按钮区域
+                        let actionsElement = studentCardElement.querySelector('.student-actions');
+                        if (actionsElement) {
+                            actionsElement.innerHTML = `
+                                <button class="action-btn return-btn" onclick="handleReturn('${studentId}')">
+                                    <i class="bi bi-arrow-return-left"></i>
+                                    暂离归来
+                                </button>
+                            `;
+                            console.log('[DEBUG] 已更新操作按钮为"暂离归来"');
+                        }
+                    } else {
+                        console.error('[ERROR] 未找到状态元素');
+                    }
+                } else {
+                    console.error('[ERROR] 未找到学生卡片元素');
+                }
+                
+                alert('暂离登记成功');
+                
+                // 使用完全刷新方式
+                console.log('[DEBUG] 将在1秒后使用硬刷新...');
+                setTimeout(() => {
+                    console.log('[DEBUG] 开始硬刷新页面...');
+                    window.location.href = window.location.href.split('#')[0] + '?t=' + new Date().getTime();
+                }, 1000);
+            } else {
+                console.error('[ERROR] 暂离登记失败:', data.message);
+                alert('暂离登记失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('[ERROR] 暂离登记请求错误:', error);
+            alert('暂离登记发生错误，请重试');
+        });
+    }
+    
+    // 处理签出
+    function handleSignOut(studentId) {
+        if (!confirm('确定为该学生签出吗？')) return;
+        
+        fetch('/api/sign_out', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                student_id: studentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('签出成功');
+                location.reload();
+            } else {
+                alert('签出失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('签出错误:', error);
+            alert('签出发生错误，请重试');
+        });
+    }
+    
+    // 处理暂离归来
+    function handleReturn(studentId) {
+        console.log('[DEBUG] handleReturn函数被调用，学生ID:', studentId);
+        
+        try {
+            // 检查jQuery是否已定义
+            if (typeof $ === 'undefined') {
+                console.error('[ERROR] jQuery未定义');
+                alert('页面加载不完整，请刷新页面后重试');
+                return;
+            }
+            
+            // 先设置学生ID
+            document.getElementById('student-id-for-return').value = studentId;
+            
+            // 确保没有旧的模态框实例
+            $('#returnModal').modal('dispose');
+            
+            // 显示模态框 - 使用 Bootstrap 4.6.0 的方式
+            $('#returnModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            
+            // 初始化相机
+            console.log('[DEBUG] 正在初始化相机');
+            initCamera();
+            
+            // 确保在模态框关闭时停止相机流
+            $('#returnModal').on('hidden.bs.modal', function() {
+                console.log('[DEBUG] 模态框关闭，停止相机流');
+                if (stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop();
+                        console.log('[DEBUG] 已停止相机轨道');
+                    });
+                }
+            });
+        } catch (error) {
+            console.error('[ERROR] 处理暂离归来时出错:', error);
+            alert('处理暂离归来时出错，请刷新页面后重试');
+        }
+    }
+    
+    // 初始化相机
+    let stream;
+    let video;
+    let canvas;
+    
+    function initCamera() {
+        video = document.getElementById('video');
+        canvas = document.getElementById('canvas');
+        const feedback = document.getElementById('camera-feedback');
+        
+        // 先关闭之前的流
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // 先显示相机启动中的提示
+        feedback.textContent = '正在启动摄像头...';
+        feedback.classList.remove('d-none', 'alert-danger', 'alert-success');
+        feedback.classList.add('alert-info');
+        
+        // 启动摄像头
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: 'user'
+            }
+        })
+        .then(mediaStream => {
+            stream = mediaStream;
+            video.srcObject = stream;
+            
+            feedback.textContent = '摄像头已启动，请点击"拍照"按钮';
+            feedback.classList.remove('d-none', 'alert-danger');
+            feedback.classList.add('alert-info');
+        })
+        .catch(err => {
+            console.error('摄像头访问失败:', err);
+            feedback.textContent = '无法访问摄像头，请确保已授予相机权限';
+            feedback.classList.remove('d-none', 'alert-success');
+            feedback.classList.add('alert-danger');
+        });
+    }
+    
+    document.getElementById('capture-btn').addEventListener('click', function() {
+        console.log('[DEBUG] 拍照按钮被点击');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const feedback = document.getElementById('camera-feedback');
+        const studentId = document.getElementById('student-id-for-return').value;
+        
+        console.log('[DEBUG] 获取到学生ID:', studentId);
+        
+        if (!video || !video.srcObject) {
+            console.error('[ERROR] 视频流未准备就绪');
+            feedback.textContent = '摄像头未就绪，请刷新页面重试';
+            feedback.classList.remove('d-none', 'alert-info', 'alert-success');
+            feedback.classList.add('alert-danger');
+            return;
+        }
+        
+        try {
+            // 设置canvas大小与视频一致
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            console.log(`[DEBUG] 设置Canvas尺寸: ${canvas.width}x${canvas.height}`);
+            
+            // 在canvas上绘制视频帧
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            console.log('[DEBUG] 已将视频帧绘制到Canvas');
+            
+            // 获取图像数据
+            const imageData = canvas.toDataURL('image/png');
+            console.log('[DEBUG] 已获取图像数据，长度:', imageData.length);
+            
+            // 显示处理中
+            feedback.textContent = '正在处理...';
+            feedback.classList.remove('d-none', 'alert-danger', 'alert-success');
+            feedback.classList.add('alert-info');
+            
+            // 记录请求开始时间
+            const startTime = new Date();
+            console.log('[DEBUG] 准备发送暂离归来请求到服务器，开始时间:', startTime);
+            
+            // 提交数据
+            fetch('/api/return', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    photo: imageData
+                })
+            })
+            .then(response => {
+                const responseTime = new Date();
+                const elapsed = responseTime - startTime;
+                console.log(`[DEBUG] 收到服务器响应状态: ${response.status}，用时: ${elapsed}ms`);
+                console.log('[DEBUG] 响应头:', [...response.headers].map(h => `${h[0]}: ${h[1]}`).join(', '));
+                return response.json();
+            })
+            .then(data => {
+                console.log('[DEBUG] 解析响应数据:', data);
+                if (data.success) {
+                    const successMessage = `归来登记成功，暂离时长: ${data.duration || '未记录'}`;
+                    feedback.textContent = successMessage;
+                    feedback.classList.remove('alert-info', 'alert-danger');
+                    feedback.classList.add('alert-success');
+                    
+                    console.log('[DEBUG] 归来登记成功，准备更新UI');
+                    
+                    // 直接更新学生卡片UI
+                    let studentCard = document.querySelector(`[data-student-id="${studentId}"]`);
+                    if (studentCard) {
+                        console.log('[DEBUG] 找到学生卡片，准备更新状态');
+                        const statusElement = studentCard.querySelector('.student-status');
+                        if (statusElement) {
+                            statusElement.innerHTML = '<span class="badge badge-success">已签到</span>';
+                            console.log('[DEBUG] 已更新状态为"已签到"');
+                        }
+                        
+                        const actionsElement = studentCard.querySelector('.student-actions');
+                        if (actionsElement) {
+                            actionsElement.innerHTML = `
+                                <button class="action-btn leave-btn" onclick="handleLeave('${studentId}')">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    暂离
+                                </button>
+                                <button class="action-btn signout-btn" onclick="handleSignOut('${studentId}')">
+                                    <i class="bi bi-box-arrow-left"></i>
+                                    签出
+                                </button>
+                            `;
+                            console.log('[DEBUG] 已更新按钮为"暂离"和"签出"');
+                        }
+                    } else {
+                        console.warn('[WARNING] 未找到学生卡片，无法直接更新UI');
+                    }
+                    
+                    // 延迟关闭模态框并刷新页面
+                    console.log('[DEBUG] 将在1500ms后关闭模态框并刷新页面');
+                    setTimeout(() => {
+                        try {
+                            const returnModal = bootstrap.Modal.getInstance(document.getElementById('returnModal'));
+                            if (returnModal) {
+                                returnModal.hide();
+                                console.log('[DEBUG] 已关闭模态框');
+                            }
+                            
+                            // 硬刷新页面以确保状态一致性
+                            console.log('[DEBUG] 执行页面刷新');
+                            window.location.href = window.location.href.split('#')[0] + '?t=' + new Date().getTime();
+                        } catch (error) {
+                            console.error('[ERROR] 关闭模态框时出错:', error);
+                            // 直接刷新页面
+                            window.location.reload();
+                        }
+                    }, 1500);
+                } else {
+                    console.error('[ERROR] 归来登记失败:', data.message);
+                    feedback.textContent = '归来登记失败: ' + data.message;
+                    feedback.classList.remove('alert-info', 'alert-success');
+                    feedback.classList.add('alert-danger');
+                }
+            })
+            .catch(error => {
+                console.error('[ERROR] 归来登记请求错误:', error);
+                feedback.textContent = '归来登记发生错误，请重试';
+                feedback.classList.remove('alert-info', 'alert-success');
+                feedback.classList.add('alert-danger');
+            });
+        } catch (error) {
+            console.error('[ERROR] 拍照处理过程出错:', error);
+            feedback.textContent = '拍照处理过程出错，请重试';
+            feedback.classList.remove('d-none', 'alert-info', 'alert-success');
+            feedback.classList.add('alert-danger');
+        }
+    });
+</script>
+{% endblock %} 

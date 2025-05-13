@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}同步结果 - 晚自习签到系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">学生教室位置同步结果</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p><strong>同步统计：</strong></p>
+                <ul>
+                    <li>总学生数: {{ result.total_students }}</li>
+                    <li>位置更新数: {{ result.updated_count }}</li>
+                    <li>匹配到教室管理员: {{ result.matched_count }}</li>
+                    <li>未匹配到教室管理员: {{ result.unmatched_count }}</li>
+                </ul>
+            </div>
+
+            {% if result.available_classrooms %}
+            <div class="mt-4">
+                <h5>可用的教室列表:</h5>
+                <div class="row">
+                    {% for classroom in result.available_classrooms %}
+                    <div class="col-md-2 mb-2">
+                        <span class="badge badge-primary">{{ classroom }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if result.unmatched_students %}
+            <div class="mt-4">
+                <h5>未匹配到教室管理员的学生:</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>学生ID</th>
+                                <th>姓名</th>
+                                <th>教室位置</th>
+                                <th>原因</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in result.unmatched_students %}
+                            <tr>
+                                <td>{{ student.id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.classroom_location }}</td>
+                                <td>找不到匹配的教室管理员</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('student_list') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> 返回学生管理
+        </a>
+        <a href="{{ url_for('admin_accounts') }}" class="btn btn-primary">
+            <i class="bi bi-building"></i> 查看教室管理员
+        </a>
+    </div>
+</div>
+{% endblock %} 

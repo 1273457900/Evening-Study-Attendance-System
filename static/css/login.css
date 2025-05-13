@@ -1,0 +1,263 @@
+@import 'variables.css';
+
+/* 登录页面包装器 */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* 登录窗口 */
+.login-box {
+    background: var(--background-light);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    animation: fadeIn var(--transition-normal) ease-out;
+}
+
+/* 标题样式 */
+.login-box h2 {
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--font-size-sm);
+}
+
+/* 表单样式 */
+.login-form {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast) ease;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(26, 41, 128, 0.1);
+    outline: none;
+}
+
+/* 登录按钮 */
+.login-button {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: var(--background-light);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal) ease;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+/* 管理员信息框 */
+.admin-info {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.info-box {
+    background: var(--background-gray);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.info-box h5 {
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.info-box p {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+/* 错误消息 */
+.error-message {
+    color: var(--error-color);
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .login-box {
+        padding: var(--spacing-lg);
+    }
+    
+    .login-box h2 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .login-subtitle {
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* 密码输入框包装器 */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-password {
+    position: absolute;
+    right: var(--spacing-md);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--transition-fast) ease;
+}
+
+.toggle-password:hover {
+    color: var(--text-primary);
+}
+
+.toggle-password:focus {
+    outline: none;
+}
+
+/* 图标样式 */
+.form-group label i,
+.info-box h5 i,
+.info-box p i {
+    margin-right: var(--spacing-xs);
+}
+
+/* 警告框样式 */
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-top: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-sm);
+}
+
+.alert i {
+    margin-right: var(--spacing-sm);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* 登录按钮加载状态 */
+.login-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* 登录头部样式 */
+.login-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+/* 输入框激活状态 */
+.form-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+}
+
+/* 错误状态输入框 */
+.form-group.has-error .form-input {
+    border-color: var(--error-color);
+}
+
+.form-group.has-error .form-input:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* 动画优化 */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.error-message {
+    animation: shake 0.6s ease-in-out;
+} 
