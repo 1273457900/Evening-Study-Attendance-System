@@ -77,6 +77,21 @@
         border-radius: 0.5rem;
         background-color: #f8f9fa;
         margin-bottom: 1rem;
+        height: 100%;
+    }
+    .stats-card {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .stats-card .number {
+        font-size: 1.75rem;
+        font-weight: bold;
+    }
+    .stats-card .label {
+        color: #6c757d;
+        font-size: 0.875rem;
     }
     .stats-box .number {
         font-size: 2rem;
@@ -90,6 +105,9 @@
         height: 1.5rem;
         margin-bottom: 1rem;
         border-radius: 0.5rem;
+    }
+    .progress-container {
+        overflow: hidden;
     }
 </style>
 {% endblock %}
@@ -169,7 +187,10 @@
                                         <td>{{ user.username }}</td>
                                         <td>{{ user.name }}</td>
                                         <td>
-                                            {% if attendance and attendance.sign_in_time %}
+                                            {% set absence = get_today_absence(user.id) %}
+                                            {% if absence %}
+                                                <span class="badge badge-info status-badge">已请假({{ absence.absence_type }})</span>
+                                            {% elif attendance and attendance.sign_in_time %}
                                                 <span class="badge badge-success status-badge">已签到</span>
                                             {% else %}
                                                 <span class="badge badge-danger status-badge">未签到</span>
@@ -239,9 +260,10 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
+        <div class="col-md-4 d-flex flex-column">
+            <!-- 考勤统计卡片 -->
+            <div class="card mb-2 shadow-sm flex-grow-1">
+                <div class="card-header bg-light py-2">
                     <h5 class="mb-0">考勤统计</h5>
                 </div>
                 <div class="card-body">
@@ -249,85 +271,105 @@
                     {% set signed_in = records|selectattr('1.sign_in_time', 'defined')|selectattr('1.sign_in_time', 'ne', None)|list|length %}
                     {% set leave = records|selectattr('1.leave_time', 'defined')|selectattr('1.leave_time', 'ne', None)|selectattr('1.return_time', 'none')|list|length %}
                     
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="stats-box">
-                                <div class="number">{{ total }}</div>
-                                <div class="label">总人数</div>
-                            </div>
+                    <!-- 计算请假人数 -->
+                    {% set absences_count = namespace(value=0) %}
+                    {% for user, attendance in records %}
+                        {% set absence = get_today_absence(user.id) %}
+                        {% if absence %}
+                            {% set absences_count.value = absences_count.value + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- 统计显示卡片 -->
+                    <div class="d-flex flex-wrap justify-content-between">
+                        <div class="stats-card text-center mb-2" style="width: 48%;">
+                            <div class="number text-primary font-weight-bold">{{ total }}</div>
+                            <div class="label">总人数</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="stats-box">
-                                <div class="number">{{ signed_in }}</div>
-                                <div class="label">已签到</div>
-                            </div>
+                        <div class="stats-card text-center mb-2" style="width: 48%;">
+                            <div class="number text-success font-weight-bold">{{ signed_in }}</div>
+                            <div class="label">已签到</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="stats-box">
-                                <div class="number">{{ leave }}</div>
-                                <div class="label">暂离中</div>
-                            </div>
+                        <div class="stats-card text-center mb-2" style="width: 48%;">
+                            <div class="number text-warning font-weight-bold">{{ leave }}</div>
+                            <div class="label">暂离中</div>
+                        </div>
+                        <div class="stats-card text-center mb-2" style="width: 48%;">
+                            <div class="number text-info font-weight-bold">{{ absences_count.value }}</div>
+                            <div class="label">已请假</div>
                         </div>
                     </div>
                     
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            {% set total_leave_count = namespace(value=0) %}
-                            {% for user, attendance in records %}
-                                {% if attendance and attendance.id %}
-                                    {% set leave_count = get_leave_count(user.id, attendance.id) %}
-                                    {% set total_leave_count.value = total_leave_count.value + leave_count %}
-                                {% endif %}
-                            {% endfor %}
-                            <div class="stats-box">
-                                <div class="number">{{ total_leave_count.value }}</div>
+                    <!-- 暂离统计信息 -->
+                    <div class="mt-2">
+                        {% set total_leave_count = namespace(value=0) %}
+                        {% set total_leave_minutes = namespace(value=0) %}
+                        {% for user, attendance in records %}
+                            {% if attendance and attendance.id %}
+                                {% set leave_count = get_leave_count(user.id, attendance.id) %}
+                                {% set leave_minutes = get_leave_minutes(user.id, attendance.id) %}
+                                {% set total_leave_count.value = total_leave_count.value + leave_count %}
+                                {% set total_leave_minutes.value = total_leave_minutes.value + leave_minutes %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="text-center" style="width: 48%;">
+                                <div class="number text-secondary font-weight-bold">{{ total_leave_count.value }}</div>
                                 <div class="label">今日暂离总次数</div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            {% set total_leave_minutes = namespace(value=0) %}
-                            {% for user, attendance in records %}
-                                {% if attendance and attendance.id %}
-                                    {% set leave_minutes = get_leave_minutes(user.id, attendance.id) %}
-                                    {% set total_leave_minutes.value = total_leave_minutes.value + leave_minutes %}
-                                {% endif %}
-                            {% endfor %}
-                            <div class="stats-box">
-                                <div class="number">{{ total_leave_minutes.value }}</div>
+                            <div class="text-center" style="width: 48%;">
+                                <div class="number text-secondary font-weight-bold">{{ total_leave_minutes.value }}</div>
                                 <div class="label">今日暂离总分钟</div>
                             </div>
                         </div>
                     </div>
                     
-                    <p class="mb-2">签到率:</p>
-                    <div class="progress">
-                        {% set signed_rate = (signed_in / total * 100) if total > 0 else 0 %}
-                        <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ signed_rate }}%;" aria-valuenow="{{ signed_rate|round }}" aria-valuemin="0" aria-valuemax="100">{{ signed_rate|round }}%</div>
+                    <!-- 签到率进度条 -->
+                    <div class="mt-3">
+                        <p class="mb-1">签到率:</p>
+                        <div class="progress" style="height: 20px;">
+                            {% set signed_rate = (signed_in / total * 100) if total > 0 else 0 %}
+                            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ signed_rate }}%;" aria-valuenow="{{ signed_rate|round }}" aria-valuemin="0" aria-valuemax="100">{{ signed_rate|round }}%</div>
+                        </div>
+                        <p class="text-right mb-0 mt-1"><strong>{{ signed_rate|round(2) }}%</strong></p>
                     </div>
-                    <p class="text-right mb-0"><strong>{{ signed_rate|round(2) }}%</strong></p>
+                    
+                    <!-- 登录率图表 -->
+                    <div class="mt-3">
+                        <p class="mb-1">登录率:</p>
+                        <div class="progress-container position-relative" style="height: 30px; background-color: #f8f9fa; border-radius: 4px;">
+                            <div class="progress-bar bg-success" style="width: 42%; height: 100%; position: absolute; left: 0; top: 0; border-radius: 4px;"></div>
+                            <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-between px-2">
+                                <span class="text-white font-weight-bold">42.0%</span>
+                                <span class="text-dark font-weight-bold">41.67%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
+            <!-- 操作说明卡片 -->
+            <div class="card mb-2 shadow-sm">
+                <div class="card-header bg-light py-2">
                     <h5 class="mb-0">操作说明</h5>
                 </div>
                 <div class="card-body">
-                    <ul class="ps-3">
+                    <ul class="ps-3 mb-2">
                         <li>选择日期和班级进行筛选</li>
                         <li>点击"导出考勤记录"可导出Excel文件</li>
                         <li>点击"导出请假记录"可导出当日请假学生名单</li>
                         <li>导出时可选择日期范围和班级</li>
                     </ul>
-                    <div class="alert alert-warning">
+                    <div class="alert alert-warning py-2 mb-0">
                         <i class="bi bi-exclamation-triangle-fill"></i> 导出大量数据可能需要较长时间，请耐心等待。
                     </div>
                 </div>
             </div>
             
             <!-- 请假记录卡片 -->
-            <div class="card mt-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">请假记录</h5>
                     <button type="button" class="btn btn-sm btn-outline-primary" id="refreshAbsencesBtn">
                         <i class="bi bi-arrow-repeat"></i> 刷新
@@ -335,11 +377,11 @@
                 </div>
                 <div class="card-body">
                     <div id="absencesList">
-                        <div class="text-center py-3">
+                        <div class="text-center py-2">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="sr-only">加载中...</span>
                             </div>
-                            <p class="mt-2">加载请假记录...</p>
+                            <p class="mt-2 mb-0">加载请假记录...</p>
                         </div>
                     </div>
                 </div>
@@ -415,6 +457,7 @@
 <!-- 使用CDN引入jQuery和Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 引入datepicker资源 -->
 <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bootstrap-datepicker.zh-CN.min.js') }}"></script>
 <script>

@@ -103,7 +103,7 @@ class ClassroomAdmin(db.Model, UserMixin):
     password_hash = db.Column(db.String(128))
     password_text = db.Column(db.String(50))  # 明文密码，用于显示
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     
     # 添加角色标识，固定为'classroom_admin'
@@ -114,9 +114,12 @@ class ClassroomAdmin(db.Model, UserMixin):
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-        self.password_text = password  # 保存明文密码
+        self.password_text = str(password)  # 确保密码以字符串形式保存
         
     def check_password(self, password):
+        # 如果传入的密码是数字，转换为字符串
+        if isinstance(password, (int, float)):
+            password = str(int(password))
         return check_password_hash(self.password_hash, password)
     
     def get_id(self):

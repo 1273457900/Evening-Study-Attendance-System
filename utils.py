@@ -454,7 +454,7 @@ def import_admin_accounts(file_path):
                     continue
                     
                 classroom_name = str(row['教室名称']).strip().upper()
-                username = str(row['登录账号']).strip().lower()
+                username = str(row['登录账号']).strip()
                 password = str(row['初始密码']).strip() if not pd.isna(row['初始密码']) else '123456'
                 
                 # 检查账号是否已存在

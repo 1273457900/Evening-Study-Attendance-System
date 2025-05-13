@@ -146,7 +146,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="class_name">班级</label>
-                        <input type="text" class="form-control" id="class_name" name="class_name" required placeholder="例如：高一(1)班">
+                        <input type="text" class="form-control" id="class_name" name="class_name" required placeholder="例如：物联网2321">
                     </div>
                     
                     <div class="form-group">
@@ -159,22 +159,12 @@
                         <input type="text" class="form-control" id="name" name="name" required placeholder="请输入学生姓名">
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">初始密码</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password" required placeholder="请输入初始密码">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                  
 
                     <div class="form-group">
                         <label for="classroom_location">教室位置</label>
-                        <input type="text" class="form-control" id="classroom_location" name="classroom_location" placeholder="例如：G503">
-                        <small class="form-text text-muted">如果填写教室位置，系统会自动关联对应的教室管理员</small>
+                        <input type="text" class="form-control" id="classroom_location" name="classroom_location" placeholder="例如：G503   这里很重要 一定区分大小写，否则无法匹配成功">
+                        <small class="form-text text-muted">填写教室位置，系统会自动关联对应的教室管理员</small>
                     </div>
                 </div>
                 <div class="modal-footer">

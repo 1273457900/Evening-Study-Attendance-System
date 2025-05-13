@@ -6,7 +6,9 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import io
-from models import db, User, AttendanceRecord, ClassroomAdmin, LeaveRecord
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
+from models import db, User, AttendanceRecord, ClassroomAdmin, LeaveRecord, AbsenceRecord
 from forms import LoginForm, ImportStudentsForm, ExportAttendanceForm
 from utils import generate_template, import_students_from_excel, export_attendance_records, generate_admin_template, import_admin_accounts, export_admin_accounts, add_timestamp_watermark
 from generate_cert import generate_ssl_cert
@@ -93,6 +95,20 @@ def inject_get_today_record():
         
         return attendance
     return {'get_today_record': get_today_record}
+
+@app.context_processor
+def inject_get_today_absence():
+    """提供一个函数用于获取学生当天的请假记录"""
+    def get_today_absence(student_id):
+        today = datetime.now().date()
+        # 查询当天的请假记录
+        absence = AbsenceRecord.query.filter_by(
+            student_id=student_id,
+            date=today
+        ).first()
+        
+        return absence
+    return {'get_today_absence': get_today_absence}
 
 @app.context_processor
 def inject_get_active_leave_record():
@@ -1475,6 +1491,470 @@ def api_return():
         logger.error(f"归来登记失败: {str(e)}")
         return jsonify({'success': False, 'message': f'归来登记失败: {str(e)}'})
 
+@app.route('/api/absence', methods=['POST'])
+@login_required
+def api_absence():
+    """教室管理员API：学生请假"""
+    if not isinstance(current_user, ClassroomAdmin):
+        return jsonify({'success': False, 'message': '只有教室管理员可以使用此功能'})
+    
+    # 同时支持JSON和表单数据
+    try:
+        data = request.json or {}
+    except:
+        data = {}
+    
+    # 尝试从表单中获取数据
+    student_id = data.get('student_id') or request.form.get('student_id')
+    absence_type = data.get('absence_type') or request.form.get('absence_type')
+    reason = data.get('reason') or request.form.get('reason', '')
+    
+    if not student_id:
+        return jsonify({'success': False, 'message': '未提供学生ID'})
+        
+    if not absence_type:
+        return jsonify({'success': False, 'message': '未提供请假类型'})
+    
+    # 查询该学生是否属于该教室管理员（通过教室位置与管理员用户名匹配）
+    student = User.query.filter(
+        User.id == student_id,
+        User.role == 'student',
+        db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+    ).first()
+    
+    if not student:
+        return jsonify({'success': False, 'message': '该学生不属于您管理的教室'})
+    
+    # 检查今天是否已有请假记录
+    today = datetime.now().date()
+    existing_absence = AbsenceRecord.query.filter_by(
+        student_id=student_id,
+        date=today
+    ).first()
+    
+    if existing_absence:
+        return jsonify({'success': False, 'message': f'该学生今天已请假({existing_absence.absence_type})'})
+    
+    # 创建新的请假记录
+    absence = AbsenceRecord(
+        student_id=student_id,
+        student_name=student.name,
+        class_name=student.class_name,
+        date=today,
+        absence_type=absence_type,
+        reason=reason,
+        approved_by=current_user.username
+    )
+    
+    try:
+        db.session.add(absence)
+        db.session.commit()
+        
+        # 记录到日志
+        logger.info(f"学生 {student.name}(ID:{student_id}) 请假登记成功，类型: {absence_type}，原因: {reason}，由 {current_user.username} 操作")
+        
+        return jsonify({
+            'success': True, 
+            'message': '请假登记成功',
+            'student_name': student.name,
+            'absence_type': absence_type,
+            'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"请假登记失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'请假登记失败: {str(e)}'})
+
+@app.route('/api/absence/cancel', methods=['POST'])
+@login_required
+def api_cancel_absence():
+    """教室管理员API：取消学生请假"""
+    if not isinstance(current_user, ClassroomAdmin):
+        return jsonify({'success': False, 'message': '只有教室管理员可以使用此功能'})
+    
+    # 获取数据
+    try:
+        data = request.json or {}
+    except:
+        data = {}
+    
+    student_id = data.get('student_id') or request.form.get('student_id')
+    
+    if not student_id:
+        return jsonify({'success': False, 'message': '未提供学生ID'})
+    
+    # 查询该学生是否属于该教室管理员
+    student = User.query.filter(
+        User.id == student_id,
+        User.role == 'student',
+        db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+    ).first()
+    
+    if not student:
+        return jsonify({'success': False, 'message': '该学生不属于您管理的教室'})
+    
+    # 查找今天的请假记录
+    today = datetime.now().date()
+    absence = AbsenceRecord.query.filter_by(
+        student_id=student_id,
+        date=today
+    ).first()
+    
+    if not absence:
+        return jsonify({'success': False, 'message': '该学生今天没有请假记录'})
+    
+    # 记录请假信息以便日志记录
+    absence_info = {
+        'student_name': absence.student_name,
+        'absence_type': absence.absence_type,
+        'reason': absence.reason
+    }
+    
+    try:
+        # 删除请假记录
+        db.session.delete(absence)
+        db.session.commit()
+        
+        # 记录到日志
+        logger.info(f"学生 {absence_info['student_name']}(ID:{student_id}) 请假取消成功，原类型: {absence_info['absence_type']}，由 {current_user.username} 操作")
+        
+        return jsonify({
+            'success': True,
+            'message': '请假记录已取消',
+            'student_name': absence_info['student_name']
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"取消请假失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'取消请假失败: {str(e)}'})
+
+@app.route('/api/sign_out', methods=['POST'])
+@login_required
+def api_sign_out():
+    """教室管理员API：学生签出"""
+    if not isinstance(current_user, ClassroomAdmin):
+        return jsonify({'success': False, 'message': '只有教室管理员可以使用此功能'})
+    
+    # 获取数据
+    try:
+        data = request.json or {}
+    except:
+        data = {}
+    
+    student_id = data.get('student_id') or request.form.get('student_id')
+    
+    if not student_id:
+        return jsonify({'success': False, 'message': '未提供学生ID'})
+    
+    # 查询该学生是否属于该教室管理员
+    student = User.query.filter(
+        User.id == student_id,
+        User.role == 'student',
+        db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+    ).first()
+    
+    if not student:
+        return jsonify({'success': False, 'message': '该学生不属于您管理的教室'})
+    
+    # 查找今天的签到记录
+    today = datetime.now().date()
+    attendance = AttendanceRecord.query.filter_by(
+        student_id=student_id,
+        date=today
+    ).first()
+    
+    if not attendance:
+        return jsonify({'success': False, 'message': '该学生今天没有签到记录'})
+    
+    if not attendance.sign_in_time:
+        return jsonify({'success': False, 'message': '该学生今天尚未签到，无法签出'})
+    
+    if attendance.sign_out_time:
+        return jsonify({'success': False, 'message': '该学生今天已经签出'})
+    
+    # 检查是否有未完成的暂离记录
+    active_leave = LeaveRecord.query.filter(
+        LeaveRecord.student_id == student_id,
+        LeaveRecord.attendance_id == attendance.id,
+        LeaveRecord.return_time.is_(None)
+    ).first()
+    
+    if active_leave:
+        return jsonify({'success': False, 'message': '该学生有未完成的暂离记录，请先登记返回'})
+    
+    try:
+        # 更新签出时间
+        attendance.sign_out_time = datetime.now()
+        db.session.commit()
+        
+        # 记录到日志
+        sign_in_time_str = attendance.sign_in_time.strftime('%H:%M:%S') if attendance.sign_in_time else "未知"
+        sign_out_time_str = attendance.sign_out_time.strftime('%H:%M:%S') if attendance.sign_out_time else "未知"
+        logger.info(f"学生 {student.name}(ID:{student_id}) 签出成功，签到时间: {sign_in_time_str}，签出时间: {sign_out_time_str}，由 {current_user.username} 操作")
+        
+        return jsonify({
+            'success': True,
+            'message': '签出成功',
+            'student_name': student.name,
+            'sign_in_time': sign_in_time_str,
+            'sign_out_time': sign_out_time_str
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"签出失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'签出失败: {str(e)}'})
+
+@app.route('/api/sign_out_all', methods=['POST'])
+@login_required
+def api_sign_out_all():
+    """教室管理员API：所有学生一键签出"""
+    if not isinstance(current_user, ClassroomAdmin):
+        return jsonify({'success': False, 'message': '只有教室管理员可以使用此功能'})
+    
+    # 查找今天已签到但未签出的学生
+    today = datetime.now().date()
+    
+    # 获取该教室的所有学生的ID
+    students = User.query.filter(
+        User.role == 'student',
+        db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+    ).all()
+    student_ids = [s.id for s in students]
+    
+    # 查找这些学生今天已签到但未签出的记录
+    attendances = AttendanceRecord.query.filter(
+        AttendanceRecord.student_id.in_(student_ids),
+        AttendanceRecord.date == today,
+        AttendanceRecord.sign_in_time.isnot(None),
+        AttendanceRecord.sign_out_time.is_(None)
+    ).all()
+    
+    if not attendances:
+        return jsonify({'success': False, 'message': '没有找到需要签出的学生记录'})
+    
+    # 检查是否有未完成的暂离记录
+    student_with_active_leave = []
+    for attendance in attendances:
+        active_leave = LeaveRecord.query.filter(
+            LeaveRecord.student_id == attendance.student_id,
+            LeaveRecord.attendance_id == attendance.id,
+            LeaveRecord.return_time.is_(None)
+        ).first()
+        
+        if active_leave:
+            student_with_active_leave.append(attendance.student_name)
+    
+    if student_with_active_leave:
+        return jsonify({
+            'success': False, 
+            'message': f'以下学生有未完成的暂离记录，请先处理：{", ".join(student_with_active_leave)}'
+        })
+    
+    try:
+        # 签出所有学生
+        now = datetime.now()
+        signed_out_count = 0
+        
+        for attendance in attendances:
+            attendance.sign_out_time = now
+            signed_out_count += 1
+            
+            # 记录到日志
+            logger.info(f"学生 {attendance.student_name}(ID:{attendance.student_id}) 被一键签出，操作者: {current_user.username}")
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'成功签出 {signed_out_count} 名学生',
+            'count': signed_out_count,
+            'time': now.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"一键签出失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'一键签出失败: {str(e)}'})
+
+@app.route('/api/absences', methods=['GET'])
+@login_required
+def api_get_absences():
+    """获取请假记录"""
+    if not current_user.is_authenticated:
+        return jsonify({'success': False, 'message': '请先登录'})
+    
+    # 获取请假日期，默认为今天
+    date_str = request.args.get('date')
+    try:
+        if date_str:
+            query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        else:
+            query_date = datetime.now().date()
+    except ValueError:
+        return jsonify({'success': False, 'message': '日期格式错误'})
+    
+    try:
+        # 查询条件
+        query = AbsenceRecord.query.filter(AbsenceRecord.date == query_date)
+        
+        # 如果是教室管理员，只显示该教室的学生
+        if isinstance(current_user, ClassroomAdmin):
+            # 获取该教室的所有学生
+            student_ids = db.session.query(User.id).filter(
+                User.role == 'student',
+                db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+            ).all()
+            student_ids = [s[0] for s in student_ids]
+            query = query.filter(AbsenceRecord.student_id.in_(student_ids))
+        
+        # 如果是教师，可以查看所有人
+        absences = query.order_by(AbsenceRecord.class_name, AbsenceRecord.student_name).all()
+        
+        # 转换为字典列表
+        result = []
+        for absence in absences:
+            # 确保学生对象已关联
+            if not absence.student:
+                student = User.query.get(absence.student_id)
+                absence.student = student
+            
+            absence_dict = absence.to_dict()
+            
+            # 添加用户信息
+            if absence.student:
+                absence_dict['username'] = absence.student.username
+            
+            result.append(absence_dict)
+        
+        return jsonify({
+            'success': True,
+            'absences': result,
+            'date': query_date.strftime('%Y-%m-%d'),
+            'count': len(result)
+        })
+    except Exception as e:
+        logger.error(f"获取请假记录失败: {str(e)}")
+        return jsonify({'success': False, 'message': f'获取请假记录失败: {str(e)}'})
+
+@app.route('/api/export_absences', methods=['GET'])
+@login_required
+def api_export_absences():
+    """导出请假记录"""
+    if not current_user.is_authenticated:
+        return jsonify({'success': False, 'message': '请先登录'})
+    
+    # 获取请假日期，默认为今天
+    date_str = request.args.get('date')
+    try:
+        if date_str:
+            query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        else:
+            query_date = datetime.now().date()
+    except ValueError:
+        return jsonify({'success': False, 'message': '日期格式错误'})
+    
+    try:
+        # 查询条件
+        query = AbsenceRecord.query.filter(AbsenceRecord.date == query_date)
+        
+        # 获取班级参数
+        class_name = request.args.get('class')
+        if class_name:
+            query = query.filter(AbsenceRecord.class_name == class_name)
+        
+        # 如果是教室管理员，只显示该教室的学生
+        if isinstance(current_user, ClassroomAdmin):
+            # 获取该教室的所有学生
+            student_ids = db.session.query(User.id).filter(
+                User.role == 'student',
+                db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
+            ).all()
+            student_ids = [s[0] for s in student_ids]
+            query = query.filter(AbsenceRecord.student_id.in_(student_ids))
+        
+        # 执行查询
+        absences = query.order_by(AbsenceRecord.class_name, AbsenceRecord.student_name).all()
+        
+        if not absences:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': '没有找到符合条件的请假记录'})
+            else:
+                flash('没有找到符合条件的请假记录', 'warning')
+                return redirect(url_for('attendance_records'))
+        
+        # 创建Excel工作簿
+        import openpyxl
+        from openpyxl.styles import Font, Alignment, PatternFill
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = f"请假记录_{query_date.strftime('%Y%m%d')}"
+        
+        # 设置标题和样式
+        header_font = Font(bold=True)
+        header_fill = PatternFill(fill_type="solid", fgColor="DDEBF7")
+        header_alignment = Alignment(horizontal='center', vertical='center')
+        
+        # 添加标题行
+        headers = ['序号', '班级', '学号', '姓名', '请假类型', '请假原因', '批准人', '登记时间']
+        for col, header in enumerate(headers, start=1):
+            cell = ws.cell(row=1, column=col, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # 添加数据
+        for row, absence in enumerate(absences, start=2):
+            # 查询学生信息
+            student = User.query.get(absence.student_id)
+            username = student.username if student else ""
+            
+            ws.cell(row=row, column=1, value=row-1)
+            ws.cell(row=row, column=2, value=absence.class_name or "")
+            ws.cell(row=row, column=3, value=username)
+            ws.cell(row=row, column=4, value=absence.student_name)
+            ws.cell(row=row, column=5, value=absence.absence_type)
+            ws.cell(row=row, column=6, value=absence.reason or "")
+            ws.cell(row=row, column=7, value=absence.approved_by or "")
+            ws.cell(row=row, column=8, value=absence.created_at.strftime('%Y-%m-%d %H:%M:%S') if absence.created_at else "")
+        
+        # 调整列宽
+        for col in range(1, len(headers) + 1):
+            ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = 15
+        
+        # 设置每一列的对齐方式
+        for row in ws.iter_rows(min_row=2, max_row=len(absences) + 1, min_col=1, max_col=len(headers)):
+            for cell in row:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        # 创建文件名
+        filename = f"请假记录_{query_date.strftime('%Y%m%d')}.xlsx"
+        if class_name:
+            filename = f"请假记录_{class_name}_{query_date.strftime('%Y%m%d')}.xlsx"
+        
+        # 确保目录存在
+        exports_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'exports')
+        if not os.path.exists(exports_dir):
+            os.makedirs(exports_dir)
+        
+        # 保存文件
+        filepath = os.path.join(exports_dir, filename)
+        wb.save(filepath)
+        
+        # 发送文件
+        return send_file(
+            filepath,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        logger.error(f"导出请假记录失败: {str(e)}")
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': f'导出失败: {str(e)}'})
+        else:
+            flash(f'导出请假记录失败: {str(e)}', 'danger')
+            return redirect(url_for('attendance_records'))
+
 @app.route('/api/students', methods=['POST'])
 @admin_required
 def add_student():
@@ -1520,7 +2000,7 @@ def add_student():
             logger.info(f"学生 {name} 未提供教室位置")
 
         # 设置密码
-        student.set_password(password)
+        #student.set_password(password)
 
         # 保存到数据库
         db.session.add(student)
