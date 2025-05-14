@@ -191,7 +191,11 @@
                                             {% if absence %}
                                                 <span class="badge badge-info status-badge">已请假({{ absence.absence_type }})</span>
                                             {% elif attendance and attendance.sign_in_time %}
-                                                <span class="badge badge-success status-badge">已签到</span>
+                                                {% if attendance.sign_out_time %}
+                                                    <span class="badge badge-secondary status-badge">已签出</span>
+                                                {% else %}
+                                                    <span class="badge badge-success status-badge">已签到</span>
+                                                {% endif %}
                                             {% else %}
                                                 <span class="badge badge-danger status-badge">未签到</span>
                                             {% endif %}
@@ -199,6 +203,9 @@
                                         <td>
                                             {% if attendance and attendance.sign_in_time %}
                                                 {{ attendance.sign_in_time.strftime('%H:%M:%S') }}
+                                                {% if attendance.sign_out_time %}
+                                                    <br><small class="text-muted">签出: {{ attendance.sign_out_time.strftime('%H:%M:%S') }}</small>
+                                                {% endif %}
                                             {% else %}
                                                 -
                                             {% endif %}
@@ -289,6 +296,12 @@
                         <div class="stats-card text-center mb-2" style="width: 48%;">
                             <div class="number text-success font-weight-bold">{{ signed_in }}</div>
                             <div class="label">已签到</div>
+                        </div>
+                        <div class="stats-card text-center mb-2" style="width: 48%;">
+                            <div class="number text-secondary font-weight-bold">
+                                {{ records|selectattr('1.sign_out_time', 'defined')|selectattr('1.sign_out_time', 'ne', None)|list|length }}
+                            </div>
+                            <div class="label">已签出</div>
                         </div>
                         <div class="stats-card text-center mb-2" style="width: 48%;">
                             <div class="number text-warning font-weight-bold">{{ leave }}</div>
