@@ -2,6 +2,17 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+import logging
+
+# 配置日志
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# 如果还没有处理器，添加一个控制台处理器
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
 
 db = SQLAlchemy()
 
@@ -152,7 +163,7 @@ class AbsenceRecord(db.Model):
     """请假记录表"""
     __tablename__ = 'absence_records'
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, nullable=True)  # 保持可为空
+    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 修改为外键
     student_name = db.Column(db.String(50), nullable=True)  # 学生姓名
     class_name = db.Column(db.String(50), nullable=True)  # 班级
     date = db.Column(db.Date, nullable=False, default=datetime.now().date)  # 请假日期
@@ -161,25 +172,56 @@ class AbsenceRecord(db.Model):
     reason = db.Column(db.String(255), nullable=True)  # 请假原因
     approved_by = db.Column(db.String(50), nullable=True)  # 批准人
     
-    # 修改关系定义，明确指定关联条件
+    # 修改关系定义
     student = db.relationship(
         'User',
         backref='absences',
-        primaryjoin="AbsenceRecord.student_id == foreign(User.id)"
+        uselist=False  # 确保这是一对一关系
     )
     
     def __repr__(self):
         return f'<AbsenceRecord {self.id} - {self.student_name} - {self.absence_type}>'
         
     def to_dict(self):
-        return {
-            'id': self.id,
-            'student_id': self.student_id,
-            'student_name': self.student_name,
-            'class_name': self.class_name,
-            'date': self.date.strftime('%Y-%m-%d'),
-            'absence_type': self.absence_type,
-            'reason': self.reason,
-            'approved_by': self.approved_by,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        } 
+        """将请假记录转换为字典格式"""
+        try:
+            logger.debug(f"开始转换请假记录ID {self.id}")
+            
+            student_info = None
+            if self.student:
+                logger.debug(f"关联学生信息 - ID: {self.student.id}, 用户名: {self.student.username}")
+                student_info = {
+                    'username': self.student.username,
+                    'name': self.student.name
+                }
+            
+            result = {
+                'id': self.id,
+                'student_id': self.student_id,
+                'student_name': self.student_name,
+                'class_name': self.class_name,
+                'date': self.date.strftime('%Y-%m-%d') if self.date else None,
+                'absence_type': self.absence_type,
+                'reason': self.reason or None,
+                'approved_by': self.approved_by or None,
+                'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
+                'username': getattr(self.student, 'username', None),
+                '_debug': {
+                    'student_info': student_info,
+                    'model': str(self)
+                }
+            }
+            
+            logger.debug(f"成功转换请假记录ID {self.id}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"转换请假记录ID {self.id} 失败: {str(e)}", exc_info=True)
+            return {
+                'id': self.id,
+                'error': str(e),
+                '_debug': {
+                    'student_id': self.student_id,
+                    'model': str(self)
+                }
+            } 

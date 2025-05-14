@@ -15,8 +15,14 @@ from generate_cert import generate_ssl_cert
 from functools import wraps
 
 # 配置日志
-logging.basicConfig(level=logging.DEBUG, 
-                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # 输出到控制台
+        logging.FileHandler('app.log')  # 输出到文件
+    ]
+)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -1789,61 +1795,86 @@ def api_sign_out_all():
 @login_required
 def api_get_absences():
     """获取请假记录"""
-    if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': '请先登录'})
-    
-    # 获取请假日期，默认为今天
-    date_str = request.args.get('date')
     try:
-        if date_str:
-            query_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        else:
-            query_date = datetime.now().date()
-    except ValueError:
-        return jsonify({'success': False, 'message': '日期格式错误'})
-    
-    try:
-        # 查询条件
+        logger.debug(f"开始处理请假记录请求，用户: {current_user.username}, 角色: {current_user.role}")
+        
+        if not current_user.is_authenticated:
+            logger.warning("未授权访问尝试")
+            return jsonify({'success': False, 'message': '请先登录'}), 401
+        
+        # 获取请假日期
+        date_str = request.args.get('date')
+        logger.debug(f"请求日期参数: {date_str}")
+        
+        try:
+            query_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else datetime.now().date()
+            logger.debug(f"解析后的查询日期: {query_date}")
+        except ValueError:
+            logger.error(f"日期格式错误: {date_str}")
+            return jsonify({'success': False, 'message': '日期格式错误，请使用YYYY-MM-DD格式'}), 400
+        
+        # 初始化查询
         query = AbsenceRecord.query.filter(AbsenceRecord.date == query_date)
+        logger.debug(f"初始查询SQL: {str(query)}")
         
         # 如果是教室管理员，只显示该教室的学生
         if isinstance(current_user, ClassroomAdmin):
-            # 获取该教室的所有学生
-            student_ids = db.session.query(User.id).filter(
+            logger.debug(f"教室管理员 {current_user.username} 请求数据，教室: {current_user.classroom_name}")
+            
+            # 获取该教室的所有学生ID
+            student_query = User.query.filter(
                 User.role == 'student',
                 db.func.upper(User.classroom_location) == db.func.upper(current_user.username)
             ).all()
-            student_ids = [s[0] for s in student_ids]
+
+            logger.debug(f"学生查询SQL: {str(student_query)}")
+            student_ids = [s.id for s in student_query.all()]
+            logger.debug(f"找到 {len(student_ids)} 个学生ID: {student_ids}")
+            
+            if not student_ids:
+                logger.warning(f"教室 {current_user.classroom_name} 没有学生")
+                return jsonify({
+                    'success': True,
+                    'absences': [],
+                    'date': query_date.strftime('%Y-%m-%d'),
+                    'count': 0,
+                    'message': '该教室没有学生'
+                })
+            
             query = query.filter(AbsenceRecord.student_id.in_(student_ids))
+            logger.debug(f"过滤后的查询SQL: {str(query)}")
         
-        # 如果是教师，可以查看所有人
+        # 执行查询
         absences = query.order_by(AbsenceRecord.class_name, AbsenceRecord.student_name).all()
+        logger.debug(f"查询到 {len(absences)} 条请假记录")
         
         # 转换为字典列表
         result = []
         for absence in absences:
-            # 确保学生对象已关联
-            if not absence.student:
-                student = User.query.get(absence.student_id)
-                absence.student = student
-            
-            absence_dict = absence.to_dict()
-            
-            # 添加用户信息
-            if absence.student:
-                absence_dict['username'] = absence.student.username
-            
-            result.append(absence_dict)
+            try:
+                logger.debug(f"处理请假记录ID {absence.id}, 学生ID: {absence.student_id}")
+                absence_dict = absence.to_dict()
+                logger.debug(f"转换后的记录: {absence_dict}")
+                result.append(absence_dict)
+            except Exception as e:
+                logger.error(f"处理请假记录ID {absence.id} 时出错: {str(e)}", exc_info=True)
+                continue
         
+        logger.info(f"成功返回 {len(result)} 条请假记录")
         return jsonify({
             'success': True,
             'absences': result,
             'date': query_date.strftime('%Y-%m-%d'),
             'count': len(result)
         })
+        
     except Exception as e:
-        logger.error(f"获取请假记录失败: {str(e)}")
-        return jsonify({'success': False, 'message': f'获取请假记录失败: {str(e)}'})
+        logger.error(f"获取请假记录失败: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False, 
+            'message': f'获取请假记录失败: {str(e)}',
+            'absences': []
+        }), 500
 
 @app.route('/api/export_absences', methods=['GET'])
 @login_required
