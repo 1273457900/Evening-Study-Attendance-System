@@ -99,12 +99,13 @@ def inject_get_today_record():
 @app.context_processor
 def inject_get_today_absence():
     """提供一个函数用于获取学生当天的请假记录"""
-    def get_today_absence(student_id):
-        today = datetime.now().date()
+    def get_today_absence(student_id, date=None):
+        # 如果没有提供日期，则使用当天日期
+        query_date = date if date else datetime.now().date()
         # 查询当天的请假记录
         absence = AbsenceRecord.query.filter_by(
             student_id=student_id,
-            date=today
+            date=query_date
         ).first()
         
         return absence
@@ -767,6 +768,10 @@ def attendance_records():
     date = request.args.get('date', today.strftime('%Y-%m-%d'))
     try:
         query_date = datetime.strptime(date, '%Y-%m-%d').date()
+        # 确保查询日期不超过今天
+        if query_date > today:
+            query_date = today
+            flash('只能查询当天及之前的考勤记录', 'warning')
     except:
         query_date = today
     
@@ -1964,11 +1969,11 @@ def add_student():
         class_name = request.form.get('class_name')
         username = request.form.get('username')
         name = request.form.get('name')
-        password = request.form.get('password')
+
         classroom_location = request.form.get('classroom_location')
 
         # 验证必填字段
-        if not all([class_name, username, name, password]):
+        if not all([class_name, username, name, classroom_location]):
             return jsonify({'success': False, 'message': '请填写所有必填字段'})
 
         # 检查学号是否已存在

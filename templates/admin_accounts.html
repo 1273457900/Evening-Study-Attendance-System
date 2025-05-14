@@ -3,11 +3,11 @@
 {% block title %}教室管理员账号管理 - 晚自习签到系统{% endblock %}
 
 {% block extra_css %}
-<!-- 直接使用CDN引入Bootstrap和Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
-<!-- 引入Toastr通知库 -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<!-- 使用本地资源替换CDN -->
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+<!-- 引入本地Toastr通知库 -->
+<link href="{{ url_for('static', filename='css/toastr.min.css') }}" rel="stylesheet">
 <style>
     .admin-table {
         width: 100%;
@@ -385,11 +385,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- 引入jQuery和Bootstrap -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- 引入Toastr通知库 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<!-- 使用本地资源替换CDN -->
+<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<!-- 引入本地Toastr通知库 -->
+<script src="{{ url_for('static', filename='js/toastr.min.js') }}"></script>
 <!-- 引入管理员账号管理JS -->
 <script src="{{ url_for('static', filename='js/admin_accounts.js') }}"></script>
 <script>

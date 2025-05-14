@@ -3,9 +3,9 @@
 {% block title %}考勤记录 - 晚自习签到系统{% endblock %}
 
 {% block extra_css %}
-<!-- 直接使用CDN引入Bootstrap和Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+<!-- 使用本地资源替换CDN -->
+<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-datepicker.min.css') }}">
 <style>
     .student-table {
@@ -187,7 +187,7 @@
                                         <td>{{ user.username }}</td>
                                         <td>{{ user.name }}</td>
                                         <td>
-                                            {% set absence = get_today_absence(user.id) %}
+                                            {% set absence = get_today_absence(user.id, date) %}
                                             {% if absence %}
                                                 <span class="badge badge-info status-badge">已请假({{ absence.absence_type }})</span>
                                             {% elif attendance and attendance.sign_in_time %}
@@ -274,7 +274,7 @@
                     <!-- 计算请假人数 -->
                     {% set absences_count = namespace(value=0) %}
                     {% for user, attendance in records %}
-                        {% set absence = get_today_absence(user.id) %}
+                        {% set absence = get_today_absence(user.id, date) %}
                         {% if absence %}
                             {% set absences_count.value = absences_count.value + 1 %}
                         {% endif %}
@@ -454,9 +454,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- 使用CDN引入jQuery和Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 使用本地资源替换CDN -->
+<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 <!-- 引入datepicker资源 -->
 <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bootstrap-datepicker.zh-CN.min.js') }}"></script>

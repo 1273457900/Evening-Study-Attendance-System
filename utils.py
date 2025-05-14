@@ -18,7 +18,7 @@ def generate_template():
     ws.title = "学生名单模板"
     
     # 设置标题行
-    headers = ["班级", "学号", "姓名", "初始密码", "教室位置"]
+    headers = ["班级", "学号", "姓名", "教室位置"]
     for col, header in enumerate(headers, 1):
         ws.cell(row=1, column=col, value=header)
         ws.cell(row=1, column=col).font = Font(bold=True)
@@ -27,9 +27,9 @@ def generate_template():
     
     # 添加一些示例数据
     example_data = [
-        ["物联网2321", "20230101", "张三", "password123", "G503"],
-        ["物联网2321", "20230102", "李四", "password123", "G503"],
-        ["物联网2321", "20230201", "王五", "password123", "G504"]
+        ["物联网2321", "20230101", "张三",  "G503"],
+        ["物联网2321", "20230102", "李四",  "G503"],
+        ["物联网2321", "20230103", "王五",  "G503"]
     ]
     
     for row, data in enumerate(example_data, 2):
@@ -46,7 +46,7 @@ def generate_template():
     ws.cell(row= 4, column=6, value="1. 班级: 请填写学生所在班级")
     ws.cell(row= 5, column=6, value="2. 学号: 请填写学生学号，将作为登录用户名")
     ws.cell(row= 6, column=6, value="3. 姓名: 请填写学生姓名")
-    ws.cell(row= 7, column=6, value="4. 初始密码: 学生首次登录的密码")
+
     ws.cell(row= 8, column=6, value="5. 教室位置: 学生所在教室编号（如G503），用于关联到教室管理员")
     
     return wb
@@ -54,11 +54,10 @@ def generate_template():
 def import_students_from_excel(file_path):
     """从Excel文件导入学生名单"""
     try:
-        df = pd.read_excel(file_path, usecols="A:E")  # 假设数据在A到E列
-     
+        df = pd.read_excel(file_path, usecols="A:E")
         
         # 验证数据格式
-        required_columns = ["班级", "学号", "姓名", "初始密码"]
+        required_columns = ["班级", "学号", "姓名"]
         for col in required_columns:
             if col not in df.columns:
                 return False, f"Excel文件格式错误，缺少'{col}'列"
@@ -67,32 +66,21 @@ def import_students_from_excel(file_path):
         imported_count = 0
         updated_count = 0
         skipped_count = 0
-        skipped_students = []
         
         for _, row in df.iterrows():
             class_name = str(row["班级"])
             student_id = str(row["学号"])
             name = str(row["姓名"])
-            password = str(row["初始密码"])
             
-            # 检测学号是否为空或无效
-            # 处理可能的空值情况
-            if pd.isna(student_id) or student_id == 'nan' or student_id == '' or student_id.lower() == 'nan':
-                # 学号为空或无效，静默跳过，不记录到日志和跳过列表中
-
-                continue
-                
-            # 检测学号是否为整型
+            # 处理学号 - 如果是浮点数格式（如20230101.0），转换为整数
             try:
-                student_id = int(float(student_id))
+                if '.' in student_id:  # 检查是否是浮点数格式
+                    student_id = str(int(float(student_id)))
+                else:
+                    student_id = str(int(student_id))  # 确保是整数格式
             except ValueError:
-                # 如果学号无法转换为整型，记录错误信息并跳过该行
-                skipped_students.append(f"学号'{student_id}'无法转换为整型，已跳过")
                 skipped_count += 1
-                continue
-            
-            # 获取教室位置（如果有）
-            classroom_location = str(row["教室位置"]) if "教室位置" in row and not pd.isna(row["教室位置"]) else None
+                continue  # 如果学号无法转换为数字，跳过该学生
             
             # 检查是否已存在该学生
             existing_user = User.query.filter_by(username=student_id).first()
@@ -101,39 +89,24 @@ def import_students_from_excel(file_path):
                 # 更新已存在的学生信息
                 existing_user.name = name
                 existing_user.class_name = class_name
-                if classroom_location:
-                    existing_user.classroom_location = classroom_location
-                    # 查找对应教室的管理员并关联
-                    admin = ClassroomAdmin.query.filter_by(classroom_name=classroom_location.upper()).first()
-                    if admin:
-                        existing_user.classroom_id = admin.id
-                if password and password.strip():
-                    existing_user.set_password(password)
+                if "教室位置" in row and not pd.isna(row["教室位置"]):
+                    existing_user.classroom_location = str(row["教室位置"])
                 updated_count += 1
             else:
-                # 创建新学生
+                # 创建新学生 - 不设置密码
                 new_user = User(
                     username=student_id,
                     name=name,
                     class_name=class_name,
-                    role="student",
-                    classroom_location=classroom_location
+                    role="student"
                 )
-                # 查找对应教室的管理员并关联
-                if classroom_location:
-                    admin = ClassroomAdmin.query.filter_by(classroom_name=classroom_location.upper()).first()
-                    if admin:
-                        new_user.classroom_id = admin.id
-                new_user.set_password(password)
+                if "教室位置" in row and not pd.isna(row["教室位置"]):
+                    new_user.classroom_location = str(row["教室位置"])
                 db.session.add(new_user)
                 imported_count += 1
         
         db.session.commit()
-        result_message = f"成功导入{imported_count}名新学生，更新{updated_count}名已有学生信息，跳过{skipped_count}名学生。"
-        # 只有当有非空学号的错误记录时才添加跳过信息
-        if skipped_students:
-            result_message += " 跳过的学生信息：\n" + "\n".join(skipped_students)
-        return True, result_message
+        return True, f"成功导入{imported_count}名新学生，更新{updated_count}名已有学生信息，跳过{skipped_count}名格式错误的学生"
     
     except Exception as e:
         db.session.rollback()
