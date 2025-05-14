@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify, send_from_directory
 import os
 import socket
 import logging
@@ -19,7 +19,9 @@ logging.basicConfig(level=logging.DEBUG,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, 
+           static_url_path='/static',  # 确保这个与模板中的引用一致
+           static_folder='static')  # 确保这是相对于app.py的正确路径
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -2212,6 +2214,10 @@ def sync_students_to_classroom_admins():
         logger.exception(f"同步学生教室位置失败: {str(e)}")
         flash(f'同步失败: {str(e)}', 'danger')
         return redirect(url_for('student_list'))
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(app.static_folder, filename)
 
 if __name__ == '__main__':
     # 获取本机IP
