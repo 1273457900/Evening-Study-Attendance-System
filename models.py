@@ -9,27 +9,22 @@ class User(db.Model, UserMixin):
     """用户表，包括学生和教师"""
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)  # 用户名/学号
-    password_hash = db.Column(db.String(128), nullable=True)  # 修改为可为空
-    name = db.Column(db.String(64))
-    class_name = db.Column(db.String(64))
-    classroom_location = db.Column(db.String(64))
-    role = db.Column(db.String(32), default='student')  # student, teacher
-    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom_admins.id'))
+    username = db.Column(db.String(50), unique=True, nullable=False)  # 用户名/学号
+    password_hash = db.Column(db.String(128), nullable=False)
+    name = db.Column(db.String(50), nullable=False)  # 姓名
+    class_name = db.Column(db.String(50), nullable=True)  # 班级
+    classroom_location = db.Column(db.String(50), nullable=True)  # 教室位置，如G503
+    role = db.Column(db.String(10), nullable=False)  # 角色：student 或 teacher
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classroom_admins.id'), nullable=True)  # 关联的教室ID
     
     attendance_records = db.relationship('AttendanceRecord', backref='student', lazy=True)
     leave_records = db.relationship('LeaveRecord', backref='student', lazy=True, 
                                    primaryjoin="User.id == LeaveRecord.student_id")
     
     def set_password(self, password):
-        if password:  # 只有提供了密码才设置
-            self.password_hash = generate_password_hash(password)
-        else:
-            self.password_hash = None
+        self.password_hash = generate_password_hash(password)
         
     def check_password(self, password):
-        if not self.password_hash:  # 如果没有密码，直接返回False
-            return False
         return check_password_hash(self.password_hash, password)
     
     def get_id(self):

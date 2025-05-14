@@ -3,9 +3,9 @@
 {% block title %}学生管理 - 晚自习签到系统{% endblock %}
 
 {% block extra_css %}
-<!-- 使用本地资源替换CDN -->
-<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+<!-- 直接使用CDN引入Bootstrap和Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 <style>
     .student-table {
         width: 100%;
@@ -235,8 +235,8 @@
 
 {% block extra_js %}
 <!-- 使用CDN引入jQuery和Bootstrap JS -->
-<script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // 使用jQuery的$(document).ready确保DOM加载完毕
     $(document).ready(function() {

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, jsonify, send_from_directory
 import os
 import socket
 import logging
@@ -19,7 +19,9 @@ logging.basicConfig(level=logging.DEBUG,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, 
+           static_url_path='/static',  # 确保这个与模板中的引用一致
+           static_folder='static')  # 确保这是相对于app.py的正确路径
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -99,13 +101,12 @@ def inject_get_today_record():
 @app.context_processor
 def inject_get_today_absence():
     """提供一个函数用于获取学生当天的请假记录"""
-    def get_today_absence(student_id, date=None):
-        # 如果没有提供日期，则使用当天日期
-        query_date = date if date else datetime.now().date()
+    def get_today_absence(student_id):
+        today = datetime.now().date()
         # 查询当天的请假记录
         absence = AbsenceRecord.query.filter_by(
             student_id=student_id,
-            date=query_date
+            date=today
         ).first()
         
         return absence
@@ -768,10 +769,6 @@ def attendance_records():
     date = request.args.get('date', today.strftime('%Y-%m-%d'))
     try:
         query_date = datetime.strptime(date, '%Y-%m-%d').date()
-        # 确保查询日期不超过今天
-        if query_date > today:
-            query_date = today
-            flash('只能查询当天及之前的考勤记录', 'warning')
     except:
         query_date = today
     
@@ -1969,11 +1966,11 @@ def add_student():
         class_name = request.form.get('class_name')
         username = request.form.get('username')
         name = request.form.get('name')
-
+        password = request.form.get('password')
         classroom_location = request.form.get('classroom_location')
 
         # 验证必填字段
-        if not all([class_name, username, name, classroom_location]):
+        if not all([class_name, username, name, password]):
             return jsonify({'success': False, 'message': '请填写所有必填字段'})
 
         # 检查学号是否已存在
@@ -2217,6 +2214,10 @@ def sync_students_to_classroom_admins():
         logger.exception(f"同步学生教室位置失败: {str(e)}")
         flash(f'同步失败: {str(e)}', 'danger')
         return redirect(url_for('student_list'))
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(app.static_folder, filename)
 
 if __name__ == '__main__':
     # 获取本机IP
