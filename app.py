@@ -658,7 +658,12 @@ def save_photo(photo_data, prefix):
     if leave_time_str and watermark_type == "返回":
         timestamp_text = f"{class_name} {student_name}\n{leave_time_str}\n{watermark_type}: {current_time}"
     
-    img_with_watermark = add_timestamp_watermark(image, timestamp_text, position='bottom', no_background=True)
+    img_with_watermark = add_timestamp_watermark(
+        image,
+        timestamp_text,
+        position='center',  # 确保使用居中
+        no_background=True
+    )
     
     # 保存文件，使用高质量设置
     filepath = os.path.join(photos_dir, filename)
@@ -2025,27 +2030,30 @@ def add_student():
 @app.route('/api/students/<int:student_id>', methods=['DELETE'])
 @admin_required
 def delete_student(student_id):
-    """删除单个学生"""
+    """删除单个学生（保留关联记录）"""
     try:
-        # 查找学生
         student = User.query.get_or_404(student_id)
         
-        # 检查是否是学生账号
         if student.role != 'student':
             return jsonify({'success': False, 'message': '只能删除学生账号'})
         
-        # 删除相关的考勤记录
-        AttendanceRecord.query.filter_by(student_id=student_id).delete()
+        # 不删除任何关联记录
+        # AttendanceRecord.query.filter_by(student_id=student_id).delete()
         
-        # 删除学生
         db.session.delete(student)
         db.session.commit()
         
-        return jsonify({'success': True, 'message': '学生删除成功'})
+        return jsonify({
+            'success': True, 
+            'message': '学生删除成功（关联记录已保留）'
+        })
     except Exception as e:
         db.session.rollback()
         logger.error(f"删除学生失败: {str(e)}")
-        return jsonify({'success': False, 'message': f'删除失败: {str(e)}'})
+        return jsonify({
+            'success': False, 
+            'message': f'删除失败: {str(e)}'
+        })
 
 @app.route('/api/sync_student_classrooms', methods=['POST'])
 @admin_required

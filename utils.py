@@ -3,7 +3,7 @@ import pandas as pd
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from datetime import datetime
-from models import User, AttendanceRecord, db, ClassroomAdmin, LeaveRecord
+from models import User, AttendanceRecord, db, ClassroomAdmin, LeaveRecord, AbsenceRecord
 from werkzeug.security import generate_password_hash
 from flask import current_app
 from openpyxl.drawing.image import Image
@@ -348,7 +348,8 @@ def export_attendance_records(start_date, end_date, class_name=None, export_phot
                                 # 尝试获取默认字体，如果失败则忽略文字绘制
                                 try:
                                     # 在Windows上可能需要系统字体路径
-                                    font = ImageFont.truetype("arial.ttf", 14)
+                                    font_path = "static/fonts/SourceHanSansSC-Regular.otf"
+                                    font = ImageFont.truetype(font_path, 14)
                                     draw.text((idx * photo_size + 5, 5), label, fill="white", font=font)
                                 except:
                                     pass  # 字体加载失败时忽略文字绘制
@@ -524,139 +525,82 @@ def export_admin_accounts():
     
     return wb
 
-def add_timestamp_watermark(img, timestamp_text, position='bottom', no_background=False):
-    """给图片添加时间水印
-    
-    Args:
-        img: PIL Image对象
-        timestamp_text: 时间文本
-        position: 水印位置，可选 'top', 'bottom', 'topleft', 'topright', 'bottomleft', 'bottomright'
-        no_background: 是否不添加背景底纹
-    
-    Returns:
-        添加水印后的PIL Image对象
-    """
-    # 创建可编辑的图像副本
+def add_timestamp_watermark(img, timestamp_text, position='center', no_background=False):
+    """给图片添加固定大小、明显清晰的水印（完全居中显示）"""
     img_with_watermark = img.copy()
     draw = ImageDraw.Draw(img_with_watermark)
     
-    # 字体大小根据图片尺寸调整
-    font_size = max(int(min(img.width, img.height) / 10), 20)  # 最小字体大小提高到20
+    # 动态调整字体大小（根据图片高度）
+    font_size = max(24, min(48, int(img.height / 20)))  # 在24-48px之间，按比例调整
     
-    # 尝试加载适合中文显示的字体
-    font = None
     try:
-        # 尝试Windows常见中文字体
-        windows_fonts = ['simhei.ttf', 'simsun.ttc', 'msyh.ttc', 'simkai.ttf']
-        for font_name in windows_fonts:
-            try:
-                font = ImageFont.truetype(font_name, font_size)
-                break
-            except:
-                continue
-            
-        # 如果Windows字体都失败，尝试常见Linux中文字体
-        if font is None:
-            linux_fonts = [
-                '/usr/share/fonts/truetype/wqy/wqy-microhei.ttc',
-                '/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc',
-                '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'
-            ]
-            for font_path in linux_fonts:
-                try:
-                    font = ImageFont.truetype(font_path, font_size)
-                    break
-                except:
-                    continue
+        font = ImageFont.truetype("static/fonts/SourceHanSansSC-Regular.otf", font_size)
     except:
-        pass
-    
-    # 如果无法加载系统字体，使用默认字体
-    if font is None:
         try:
-            font = ImageFont.load_default()
-            # 默认字体不支持中文，记录警告
-            current_app.logger.warning("无法加载支持中文的字体，水印可能无法正确显示中文")
+            font = ImageFont.truetype("arial.ttf", font_size)
         except:
-            # 如果出错，跳过绘制水印
-            current_app.logger.error("无法加载任何字体，跳过水印添加")
-            return img
+            font = ImageFont.load_default()
     
-    # 计算文本大小，用于定位
-    # 使用textwrap分行处理
+    # 计算多行文本高度和每行宽度
     lines = timestamp_text.split('\n')
+    line_height = font_size + 5
+    total_text_height = len(lines) * line_height
+    line_widths = [font.getlength(line) for line in lines]
+    max_text_width = max(line_widths) if line_widths else 0
     
-    # 如果使用默认字体，尝试测量文本长度
-    try:
-        line_widths = [draw.textlength(line, font=font) for line in lines]
-        max_line_width = max(line_widths)
-    except:
-        # 如果无法测量，使用估计值
-        max_line_width = max(len(line) * font_size * 0.6 for line in lines)
-    
-    line_height = font_size + 6  # 增加行间距以提高可读性
-    text_height = line_height * len(lines)
-    
-    # 添加半透明背景以提高可读性
-    margin = 15  # 增加文本周围的边距以提高可读性
-    
-    # 根据position参数确定水印位置
-    if position == 'top':
-        rect_x0 = (img.width - max_line_width) // 2 - margin
-        rect_y0 = margin
+    # 计算居中位置（确保不会超出边界）
+    margin = 30
+    if position == 'center':
+        x = (img.width - max_text_width) // 2
+        y = (img.height - total_text_height) // 2
     elif position == 'bottom':
-        rect_x0 = (img.width - max_line_width) // 2 - margin
-        rect_y0 = img.height - text_height - 2 * margin
-    elif position == 'topleft':
-        rect_x0 = margin
-        rect_y0 = margin
-    elif position == 'topright':
-        rect_x0 = img.width - max_line_width - 2 * margin
-        rect_y0 = margin
-    elif position == 'bottomleft':
-        rect_x0 = margin
-        rect_y0 = img.height - text_height - 2 * margin
-    elif position == 'bottomright':
-        rect_x0 = img.width - max_line_width - 2 * margin
-        rect_y0 = img.height - text_height - 2 * margin
-    else:  # 默认为底部
-        rect_x0 = (img.width - max_line_width) // 2 - margin
-        rect_y0 = img.height - text_height - 2 * margin
+        x = (img.width - max_text_width) // 2
+        y = img.height - total_text_height - margin
+    else:  # 默认居中
+        x = (img.width - max_text_width) // 2
+        y = (img.height - total_text_height) // 2
     
-    rect_x1 = rect_x0 + max_line_width + 2 * margin
-    rect_y1 = rect_y0 + text_height + margin
-    
-    # 绘制半透明背景，除非no_background=True
+    # 添加半透明背景（确保能容纳多行文本）
     if not no_background:
-        draw.rectangle([rect_x0, rect_y0, rect_x1, rect_y1], fill=(0, 0, 0, 180))
+        bg_margin = 10
+        draw.rectangle(
+            [x - bg_margin, y - bg_margin, 
+             x + max_text_width + bg_margin, y + total_text_height + bg_margin],
+            fill=(0, 0, 0, 180)
+        )
     
-    # 绘制文本
-    y = rect_y0 + margin // 2
-    for line in lines:
-        # 水平居中对齐每一行文本
-        x = rect_x0 + margin
-        if position in ['top', 'bottom']:
-            try:
-                x = rect_x0 + (rect_x1 - rect_x0 - draw.textlength(line, font=font)) // 2
-            except:
-                x = rect_x0 + margin  # 如果无法测量，使用边距
+    # 绘制多行文本（每行单独计算水平居中）
+    for i, line in enumerate(lines):
+        line_x = (img.width - line_widths[i]) // 2  # 每行单独计算水平居中
+        line_y = y + i * line_height
         
-        # 为文字添加描边效果，增强可读性
-        # 描边颜色：如果不使用背景，则使用黑色描边；如果使用背景，则使用黑色描边
-        stroke_color = (0, 0, 0)
+        # 红色描边
+        for offset in range(-2, 3):
+            draw.text((line_x + offset, line_y), line, fill="red", font=font)
+            draw.text((line_x, line_y + offset), line, fill="red", font=font)
         
-        # 描边效果：描边宽度增加到4个像素，确保在任何背景下都清晰可见
-        for offset_x in range(-2, 3):
-            for offset_y in range(-2, 3):
-                # 跳过中心点，中心点将被实际文字覆盖
-                if offset_x == 0 and offset_y == 0:
-                    continue
-                # 计算距离，只绘制距离中心2个像素以内的点
-                if abs(offset_x) + abs(offset_y) <= 3:
-                    draw.text((x + offset_x, y + offset_y), line, fill=stroke_color, font=font)
-        
-        # 绘制文字本身
-        draw.text((x, y), line, fill=(255, 255, 255), font=font)
-        y += line_height
+        # 白色主文字
+        draw.text((line_x, line_y), line, fill="white", font=font)
     
-    return img_with_watermark 
+    return img_with_watermark
+
+def delete_student(student_id):
+    """仅删除学生记录（保留所有关联记录）"""
+    try:
+        student = User.query.get(student_id)
+        if not student:
+            return False, "学生不存在"
+        
+        # 1. 不删除任何关联记录
+        # AttendanceRecord.query.filter_by(student_id=student_id).delete()
+        # LeaveRecord.query.filter_by(student_id=student_id).delete()
+        # AbsenceRecord.query.filter_by(student_id=student_id).delete()
+        
+        # 2. 仅删除学生本身
+        db.session.delete(student)
+        db.session.commit()
+        
+        return True, "学生删除成功（所有关联记录已保留）"
+    except Exception as e:
+        db.session.rollback()
+        return False, f"删除失败：{str(e)}" 

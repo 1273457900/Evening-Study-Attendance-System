@@ -17,9 +17,19 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(32), default='student')  # student, teacher
     classroom_id = db.Column(db.Integer, db.ForeignKey('classroom_admins.id'))
     
-    attendance_records = db.relationship('AttendanceRecord', backref='student', lazy=True)
-    leave_records = db.relationship('LeaveRecord', backref='student', lazy=True, 
-                                   primaryjoin="User.id == LeaveRecord.student_id")
+    attendance_records = db.relationship(
+        'AttendanceRecord', 
+        backref='student',  # 这会自动在 AttendanceRecord 中创建 student 属性
+        lazy=True,
+        primaryjoin="User.id == foreign(AttendanceRecord.student_id)"
+    )
+    
+    leave_records = db.relationship(
+        'LeaveRecord', 
+        backref='student', 
+        lazy=True,
+        primaryjoin="User.id == foreign(LeaveRecord.student_id)"
+    )
     
     def set_password(self, password):
         if password:  # 只有提供了密码才设置
@@ -43,7 +53,7 @@ class AttendanceRecord(db.Model):
     """考勤记录表"""
     __tablename__ = 'attendance_records'
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 学生ID
+    student_id = db.Column(db.Integer, nullable=True)  # 保持可为空
     student_name = db.Column(db.String(50), nullable=True)  # 学生姓名
     class_name = db.Column(db.String(50), nullable=True)  # 班级
     date = db.Column(db.Date, nullable=False)  # 日期
@@ -63,7 +73,7 @@ class LeaveRecord(db.Model):
     """暂离记录表"""
     __tablename__ = 'leave_records'
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 学生ID
+    student_id = db.Column(db.Integer, nullable=True)  # 保持可为空
     student_name = db.Column(db.String(50), nullable=True)  # 学生姓名
     class_name = db.Column(db.String(50), nullable=True)  # 班级
     attendance_id = db.Column(db.Integer, db.ForeignKey('attendance_records.id'), nullable=False)  # 关联的考勤记录ID
@@ -73,9 +83,6 @@ class LeaveRecord(db.Model):
     return_photo = db.Column(db.String(255), nullable=True)  # 返回照片
     reason = db.Column(db.String(255), nullable=True)  # 暂离原因
     duration = db.Column(db.Integer, nullable=True)  # 暂离时长(秒)
-    
-    # 关联到考勤记录
-    attendance = db.relationship('AttendanceRecord', backref='leave_records')
     
     def __repr__(self):
         return f'<LeaveRecord {self.id}>'
@@ -145,17 +152,21 @@ class AbsenceRecord(db.Model):
     """请假记录表"""
     __tablename__ = 'absence_records'
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 学生ID
+    student_id = db.Column(db.Integer, nullable=True)  # 保持可为空
     student_name = db.Column(db.String(50), nullable=True)  # 学生姓名
     class_name = db.Column(db.String(50), nullable=True)  # 班级
     date = db.Column(db.Date, nullable=False, default=datetime.now().date)  # 请假日期
     created_at = db.Column(db.DateTime, default=datetime.now)  # 创建时间
-    absence_type = db.Column(db.String(50), nullable=False)  # 请假类型：事假、病假、社团、学生会等
+    absence_type = db.Column(db.String(50), nullable=False)  # 请假类型
     reason = db.Column(db.String(255), nullable=True)  # 请假原因
-    approved_by = db.Column(db.String(50), nullable=True)  # 批准人/记录人
+    approved_by = db.Column(db.String(50), nullable=True)  # 批准人
     
-    # 关联到学生
-    student = db.relationship('User', backref='absences', lazy=True)
+    # 修改关系定义，明确指定关联条件
+    student = db.relationship(
+        'User',
+        backref='absences',
+        primaryjoin="AbsenceRecord.student_id == foreign(User.id)"
+    )
     
     def __repr__(self):
         return f'<AbsenceRecord {self.id} - {self.student_name} - {self.absence_type}>'
