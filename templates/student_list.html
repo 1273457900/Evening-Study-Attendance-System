@@ -19,9 +19,60 @@
         background-color: #f8f9fa;
         font-weight: 500;
         text-align: left;
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.2s ease;
+        padding-right: 30px;
     }
-    .student-table tr:hover {
-        background-color: #f8f9fa;
+    .student-table th:hover {
+        background-color: #e9ecef;
+    }
+    .student-table th .sort-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    .student-table th:hover .sort-icon,
+    .student-table th.sort-asc .sort-icon,
+    .student-table th.sort-desc .sort-icon {
+        opacity: 1;
+    }
+    .student-table th .sort-icon::before,
+    .student-table th .sort-icon::after {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        transition: all 0.2s ease;
+    }
+    .student-table th .sort-icon::before {
+        border-bottom: 4px solid #bfbfbf;
+        margin-bottom: 2px;
+    }
+    .student-table th .sort-icon::after {
+        border-top: 4px solid #bfbfbf;
+    }
+    .student-table th:hover .sort-icon::before {
+        border-bottom-color: #1890ff;
+    }
+    .student-table th:hover .sort-icon::after {
+        border-top-color: #1890ff;
+    }
+    .student-table th.sort-asc .sort-icon::before {
+        border-bottom-color: #1890ff;
+    }
+    .student-table th.sort-desc .sort-icon::after {
+        border-top-color: #1890ff;
     }
     .btn-icon {
         background: none;
@@ -98,11 +149,11 @@
                 <table class="student-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>班级</th>
-                            <th>学号</th>
-                            <th>姓名</th>
-                            <th>教室位置</th>
+                            <th data-sort="index">#<span class="sort-icon"></span></th>
+                            <th data-sort="class">班级<span class="sort-icon"></span></th>
+                            <th data-sort="student_id">学号<span class="sort-icon"></span></th>
+                            <th data-sort="name">姓名<span class="sort-icon"></span></th>
+                            <th data-sort="location">教室位置<span class="sort-icon"></span></th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -342,6 +393,87 @@
         // 模态框被隐藏时重置表单
         $('#addStudentModal').on('hidden.bs.modal', function() {
             $('#addStudentForm')[0].reset();
+        });
+
+        // 排序状态变量
+        let sortColumns = [];  // 存储排序顺序的数组
+
+        // 排序函数
+        function sortTable(column) {
+            const tbody = $('.student-table tbody');
+            const rows = tbody.find('tr').toArray();
+            
+            // 更新排序状态
+            const existingIndex = sortColumns.findIndex(item => item.column === column);
+            if (existingIndex !== -1) {
+                // 如果列已经在排序列表中，切换其排序方向
+                if (sortColumns[existingIndex].direction === 'asc') {
+                    sortColumns[existingIndex].direction = 'desc';
+                } else if (sortColumns[existingIndex].direction === 'desc') {
+                    // 移除该列的排序
+                    sortColumns.splice(existingIndex, 1);
+                }
+            } else {
+                // 添加新的排序列
+                sortColumns.push({
+                    column: column,
+                    direction: 'asc'
+                });
+            }
+            
+            // 更新表头样式
+            $('.student-table th').removeClass('sort-asc sort-desc');
+            
+            sortColumns.forEach((sort) => {
+                const th = $(`.student-table th[data-sort="${sort.column}"]`);
+                th.addClass(`sort-${sort.direction}`);
+            });
+            
+            // 如果没有排序列，恢复原始顺序
+            if (sortColumns.length === 0) {
+                tbody.append(rows);
+                return;
+            }
+            
+            // 排序行
+            rows.sort((a, b) => {
+                for (const sort of sortColumns) {
+                    let aVal = $(a).find(`td[data-${sort.column}]`).text() || $(a).find('td').eq(getColumnIndex(sort.column)).text();
+                    let bVal = $(b).find(`td[data-${sort.column}]`).text() || $(b).find('td').eq(getColumnIndex(sort.column)).text();
+                    
+                    // 特殊处理数字列
+                    if (['index'].includes(sort.column)) {
+                        aVal = parseInt(aVal) || 0;
+                        bVal = parseInt(bVal) || 0;
+                    }
+                    
+                    if (aVal !== bVal) {
+                        return sort.direction === 'asc' ? 
+                            (aVal > bVal ? 1 : -1) : 
+                            (aVal < bVal ? 1 : -1);
+                    }
+                }
+                return 0;
+            });
+            
+            tbody.append(rows);
+        }
+        
+        // 获取列索引
+        function getColumnIndex(column) {
+            const headers = $('.student-table th');
+            for (let i = 0; i < headers.length; i++) {
+                if ($(headers[i]).data('sort') === column) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+        
+        // 为表头添加点击事件
+        $('.student-table th[data-sort]').on('click', function() {
+            const column = $(this).data('sort');
+            sortTable(column);
         });
     });
 </script>

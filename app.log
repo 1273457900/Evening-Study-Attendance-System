@@ -1,0 +1,192 @@
+2025-05-20 20:47:02,294 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://192.168.68.154:5000
+2025-05-20 20:47:02,295 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-20 20:47:02,297 - werkzeug - INFO -  * Restarting with stat
+2025-05-20 20:47:03,842 - werkzeug - WARNING -  * Debugger is active!
+2025-05-20 20:47:03,849 - werkzeug - INFO -  * Debugger PIN: 145-204-439
+2025-05-20 20:47:09,606 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "[32mGET / HTTP/1.1[0m" 302 -
+2025-05-20 20:47:09,652 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /login HTTP/1.1" 200 -
+2025-05-20 20:47:09,698 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-05-20 20:47:09,710 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/base.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,710 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/bootstrap-icons.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,715 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/layout.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,722 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/components.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,723 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,727 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/bootstrap.min.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,731 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/css/variables.css HTTP/1.1" 200 -
+2025-05-20 20:47:09,737 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:09] "GET /static/js/jquery-3.6.0.min.js HTTP/1.1" 200 -
+2025-05-20 20:47:10,443 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:10] "GET /static/fonts/bootstrap-icons.woff2 HTTP/1.1" 200 -
+2025-05-20 20:47:11,054 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:11] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-05-20 20:47:15,730 - __main__ - DEBUG - ³¢ÊÔµÇÂ¼ÓÃ»§Ãû: admin
+2025-05-20 20:47:15,853 - __main__ - DEBUG - ÆÕÍ¨ÓÃ»§µÇÂ¼³É¹¦: admin
+2025-05-20 20:47:15,855 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[32mPOST /login HTTP/1.1[0m" 302 -
+2025-05-20 20:47:15,883 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "GET /teacher HTTP/1.1" 200 -
+2025-05-20 20:47:15,924 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,929 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,936 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,937 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,941 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,945 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:15,948 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:15] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,113 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "GET /students HTTP/1.1" 200 -
+2025-05-20 20:47:18,156 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,161 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,164 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,168 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,173 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,176 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:18,178 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:18] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,711 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:47:19,751 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,757 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:47:19,760 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,764 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,768 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,771 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,775 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,777 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:47:19,780 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "GET /static/js/bootstrap-datepicker.min.js HTTP/1.1" 200 -
+2025-05-20 20:47:19,783 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "GET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1" 200 -
+2025-05-20 20:47:19,820 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:47:19,822 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:47:19,822 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:47:19,823 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:47:19,825 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:47:19,825 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:47:19,826 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:47:19] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:49:04,557 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:49:04,600 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:49:04,605 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,609 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,612 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,617 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,618 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,622 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,623 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,630 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/js/bootstrap-datepicker.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,630 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "[36mGET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:49:04,655 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:49:04,656 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:49:04,657 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:49:04,658 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:49:04,659 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:49:04,660 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:49:04,661 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:49:04] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:50:03,215 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:50:03,260 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:50:03,264 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,268 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,271 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,274 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,279 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,283 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,285 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,289 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/js/bootstrap-datepicker.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,292 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "[36mGET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:50:03,317 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:50:03,317 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:50:03,318 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:50:03,319 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:50:03,321 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:50:03,322 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:50:03,323 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:50:03] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:51:02,177 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:51:02,223 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:51:02,227 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,231 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,234 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,240 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,242 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,246 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,249 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,252 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/js/bootstrap-datepicker.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,256 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "[36mGET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:51:02,284 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:51:02,285 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:51:02,285 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:51:02,286 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:51:02,288 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:51:02,291 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:51:02,293 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:02] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:51:27,442 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "GET /students HTTP/1.1" 200 -
+2025-05-20 20:51:27,475 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,485 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,489 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,493 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,497 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,501 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:51:27,505 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:51:27] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,150 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:52:11,192 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,197 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,200 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,204 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:52:11,205 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,210 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,212 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/js/bootstrap-datepicker.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,215 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,218 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,222 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:52:11,256 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:52:11,257 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:52:11,257 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:52:11,259 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:52:11,260 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:52:11,260 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:52:11,261 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:52:11] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:53:56,676 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "GET /attendance HTTP/1.1" 200 -
+2025-05-20 20:53:56,716 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,721 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "GET /static/css/bootstrap-datepicker.min.css HTTP/1.1" 200 -
+2025-05-20 20:53:56,725 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,729 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,732 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,735 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,738 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,741 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,745 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/js/bootstrap-datepicker.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,751 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "[36mGET /static/js/bootstrap-datepicker.zh-CN.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:53:56,774 - __main__ - DEBUG - ¿ªÊ¼´¦ÀíÇë¼Ù¼ÇÂ¼ÇëÇó£¬ÓÃ»§: admin, ½ÇÉ«: teacher
+2025-05-20 20:53:56,774 - __main__ - DEBUG - ÇëÇóÈÕÆÚ²ÎÊý: 2025-05-20
+2025-05-20 20:53:56,775 - __main__ - DEBUG - ½âÎöºóµÄ²éÑ¯ÈÕÆÚ: 2025-05-20
+2025-05-20 20:53:56,776 - __main__ - DEBUG - ³õÊ¼²éÑ¯SQL: SELECT absence_records.id AS absence_records_id, absence_records.student_id AS absence_records_student_id, absence_records.student_name AS absence_records_student_name, absence_records.class_name AS absence_records_class_name, absence_records.date AS absence_records_date, absence_records.created_at AS absence_records_created_at, absence_records.absence_type AS absence_records_absence_type, absence_records.reason AS absence_records_reason, absence_records.approved_by AS absence_records_approved_by 
+FROM absence_records 
+WHERE absence_records.date = ?
+2025-05-20 20:53:56,776 - __main__ - DEBUG - ²éÑ¯µ½ 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:53:56,777 - __main__ - INFO - ³É¹¦·µ»Ø 0 ÌõÇë¼Ù¼ÇÂ¼
+2025-05-20 20:53:56,777 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:53:56] "GET /api/absences?date=2025-05-20 HTTP/1.1" 200 -
+2025-05-20 20:54:13,209 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "GET /students HTTP/1.1" 200 -
+2025-05-20 20:54:13,253 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,259 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,260 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,264 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,268 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,271 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:54:13,273 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:13] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,135 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "GET /students HTTP/1.1" 200 -
+2025-05-20 20:54:21,180 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,182 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,185 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,189 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,192 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,197 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:54:21,204 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:54:21] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,074 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "GET /students HTTP/1.1" 200 -
+2025-05-20 20:55:24,112 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,116 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,120 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,124 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,128 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,132 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-20 20:55:24,135 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
