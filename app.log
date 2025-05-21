@@ -190,3 +190,204 @@ WHERE absence_records.date = ?
 2025-05-20 20:55:24,128 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
 2025-05-20 20:55:24,132 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
 2025-05-20 20:55:24,135 - werkzeug - INFO - 192.168.68.154 - - [20/May/2025 20:55:24] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:18:35,404 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://192.168.68.154:5000
+2025-05-21 19:18:35,404 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-21 19:18:35,406 - werkzeug - INFO -  * Restarting with stat
+2025-05-21 19:18:37,025 - werkzeug - WARNING -  * Debugger is active!
+2025-05-21 19:18:37,032 - werkzeug - INFO -  * Debugger PIN: 145-204-439
+2025-05-21 19:18:41,302 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "[32mGET / HTTP/1.1[0m" 302 -
+2025-05-21 19:18:41,373 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:18:41,434 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,439 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/fontawesome.min.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,442 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/solid.min.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,448 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/brands.min.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,452 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/bootstrap.min.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,456 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/bootstrap-icons.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,457 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/base.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,461 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/layout.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,466 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/components.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,468 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/css/variables.css HTTP/1.1" 200 -
+2025-05-21 19:18:41,472 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/js/jquery-3.6.0.min.js HTTP/1.1" 200 -
+2025-05-21 19:18:41,479 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-05-21 19:18:41,526 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "GET /static/fonts/bootstrap-icons.woff2 HTTP/1.1" 200 -
+2025-05-21 19:18:41,593 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-05-21 19:18:44,506 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,511 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,519 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/fontawesome.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,525 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/solid.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,527 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/brands.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,533 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,538 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,540 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,543 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,546 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:44,610 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:18:44,859 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:44] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:18:49,998 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:49] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:18:50,066 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,072 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/fontawesome.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,078 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/solid.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,083 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/brands.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,093 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,101 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,105 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,109 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,114 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,120 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,125 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,132 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:18:50,158 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:18:50,225 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:18:50] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:25:41,735 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "[32mGET / HTTP/1.1[0m" 302 -
+2025-05-21 19:25:41,753 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:25:41,822 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,827 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/fontawesome.min.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,830 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/solid.min.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,835 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/brands.min.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,836 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/bootstrap.min.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,842 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/bootstrap-icons.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,845 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/base.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,850 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/layout.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,853 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/components.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,857 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/css/variables.css HTTP/1.1" 200 -
+2025-05-21 19:25:41,857 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/js/jquery-3.6.0.min.js HTTP/1.1" 200 -
+2025-05-21 19:25:41,865 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-05-21 19:25:41,909 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "GET /static/fonts/bootstrap-icons.woff2 HTTP/1.1" 200 -
+2025-05-21 19:25:41,958 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:25:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-05-21 19:26:07,201 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://192.168.68.154:5000
+2025-05-21 19:26:07,202 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-21 19:26:07,203 - werkzeug - INFO -  * Restarting with stat
+2025-05-21 19:26:08,715 - werkzeug - WARNING -  * Debugger is active!
+2025-05-21 19:26:08,720 - werkzeug - INFO -  * Debugger PIN: 145-204-439
+2025-05-21 19:26:12,949 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:12] "[32mGET / HTTP/1.1[0m" 302 -
+2025-05-21 19:26:12,999 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:12] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:26:13,071 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/base.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,076 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/layout.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,081 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/components.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,086 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,092 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/bootstrap.min.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,094 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/bootstrap-icons.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,097 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/css/variables.css HTTP/1.1" 200 -
+2025-05-21 19:26:13,101 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/js/jquery-3.6.0.min.js HTTP/1.1" 200 -
+2025-05-21 19:26:13,109 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-05-21 19:26:13,155 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:13] "GET /static/fonts/bootstrap-icons.woff2 HTTP/1.1" 200 -
+2025-05-21 19:26:20,590 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,602 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,606 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,609 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,615 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,621 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,626 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:20,672 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:26:20,837 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:20] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:26:26,134 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:26:26,170 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,194 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,202 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,212 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,216 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,219 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,223 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,229 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,259 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:26:26,264 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:26:26,344 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:26:26] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:34,898 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:34,954 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,961 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,968 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,970 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-21 19:27:34,978 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,986 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,992 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:34,995 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:34] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:35,009 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:35,014 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:35,079 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:35,883 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:35,975 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:35,992 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:35,993 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:35] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,000 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,007 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,010 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,018 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,024 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,033 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:36,087 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:36,106 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:36] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:43,208 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:43,276 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,281 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,287 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,294 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,301 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,308 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,315 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,322 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,368 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:43,379 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:43,466 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:43] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:44,133 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:44,188 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,193 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,202 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,208 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,214 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,253 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,266 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,269 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,293 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,302 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:44,371 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:44,823 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:44,880 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,885 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,893 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,899 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,902 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,908 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,913 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,916 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,918 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:44,977 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:44] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:45,045 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:45,332 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:27:45,391 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,405 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/components.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,414 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,418 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/base.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,423 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/layout.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,429 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/login.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,433 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/js/jquery-3.6.0.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,436 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,449 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[36mGET /static/css/variables.css HTTP/1.1[0m" 304 -
+2025-05-21 19:27:45,453 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[33mGET /static/css/bootstrap.min.css.map HTTP/1.1[0m" 404 -
+2025-05-21 19:27:45,532 - werkzeug - INFO - 192.168.68.154 - - [21/May/2025 19:27:45] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-05-21 19:28:21,347 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5000
+ * Running on https://10.54.76.147:5000
+2025-05-21 19:28:21,348 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-21 19:28:21,349 - werkzeug - INFO -  * Restarting with stat
+2025-05-21 19:28:22,965 - werkzeug - WARNING -  * Debugger is active!
+2025-05-21 19:28:22,975 - werkzeug - INFO -  * Debugger PIN: 145-204-439
+2025-05-21 19:28:28,525 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "[32mGET / HTTP/1.1[0m" 302 -
+2025-05-21 19:28:28,552 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /login HTTP/1.1" 200 -
+2025-05-21 19:28:28,590 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-05-21 19:28:28,599 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/bootstrap-icons.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,602 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/base.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,609 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/layout.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,611 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/components.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,616 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/login.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,619 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/bootstrap.min.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,622 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/js/jquery-3.6.0.min.js HTTP/1.1" 200 -
+2025-05-21 19:28:28,630 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/css/variables.css HTTP/1.1" 200 -
+2025-05-21 19:28:28,672 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "GET /static/fonts/bootstrap-icons.woff2 HTTP/1.1" 200 -
+2025-05-21 19:28:28,694 - werkzeug - INFO - 127.0.0.1 - - [21/May/2025 19:28:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
